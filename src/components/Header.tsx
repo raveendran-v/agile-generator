@@ -17,7 +17,7 @@ const Header = () => {
         <div className="flex items-center space-x-2">
           <Zap className="h-7 w-7 text-primary" />
           <h1 className="text-2xl font-serif font-bold text-stone-900 dark:text-stone-100">
-            AgileStory AI
+            Agile Genesis
           </h1>
         </div>
         

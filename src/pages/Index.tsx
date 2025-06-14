@@ -5,13 +5,7 @@ import EpicGeneration from '../components/EpicGeneration';
 import StoryGeneration from '../components/StoryGeneration';
 import Footer from '../components/Footer';
 import { useToast } from '@/hooks/use-toast';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { generateEpicsWithGroq, generateStoriesWithGroq } from '@/lib/groqService';
-import { AlertCircle } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-
 
 export interface Epic {
   id: string;
@@ -32,6 +26,8 @@ export interface Story {
   dor: string[];
 }
 
+const USER_PROVIDED_GROQ_API_KEY = "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET";
+
 const Index = () => {
   const [brdContent, setBrdContent] = useState('');
   const [epics, setEpics] = useState<Epic[]>([]);
@@ -40,27 +36,7 @@ const Index = () => {
   const [isStoriesFinalized, setIsStoriesFinalized] = useState(false);
   const [isGeneratingEpics, setIsGeneratingEpics] = useState(false);
   const [isGeneratingStories, setIsGeneratingStories] = useState(false);
-  const [groqApiKey, setGroqApiKey] = useState('');
   const { toast } = useToast();
-
-  useEffect(() => {
-    const storedApiKey = localStorage.getItem('groqApiKey');
-    if (storedApiKey) {
-      setGroqApiKey(storedApiKey);
-    }
-  }, []);
-
-  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGroqApiKey(e.target.value);
-  };
-
-  const handleSaveApiKey = () => {
-    localStorage.setItem('groqApiKey', groqApiKey);
-    toast({
-      title: 'API Key Saved',
-      description: 'Your Groq API key has been saved locally for this session.',
-    });
-  };
 
   // Get current workflow step
   const getCurrentWorkflowStep = () => {
@@ -71,10 +47,10 @@ const Index = () => {
   };
 
   const handleBRDSubmit = async (content: string) => {
-    if (!groqApiKey) {
+    if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
       toast({
-        title: "API Key Required",
-        description: "Please enter your Groq API key to generate epics.",
+        title: "API Key Not Set",
+        description: "The Groq API key needs to be configured. Please provide it in the chat.",
         variant: "destructive",
       });
       return;
@@ -84,7 +60,7 @@ const Index = () => {
     setEpics([]); // Clear previous epics
     
     try {
-      const generatedEpics = await generateEpicsWithGroq(content, { apiKey: groqApiKey });
+      const generatedEpics = await generateEpicsWithGroq(content, { apiKey: USER_PROVIDED_GROQ_API_KEY });
       setEpics(generatedEpics);
       toast({
         title: "Epics Generated Successfully",
@@ -108,13 +84,13 @@ const Index = () => {
         toast({ title: "Error", description: "BRD content is missing.", variant: "destructive"});
         return;
     }
-    if (!groqApiKey) {
-      toast({ title: "API Key Required", description: "Groq API key needed.", variant: "destructive"});
+    if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
+      toast({ title: "API Key Not Set", description: "Groq API key needed. Please provide it in the chat.", variant: "destructive"});
       return;
     }
     setIsGeneratingEpics(true);
     try {
-      const generatedEpics = await generateEpicsWithGroq(brdContent, { apiKey: groqApiKey });
+      const generatedEpics = await generateEpicsWithGroq(brdContent, { apiKey: USER_PROVIDED_GROQ_API_KEY });
       setEpics(generatedEpics);
       toast({
         title: "Epics Regenerated",
@@ -140,10 +116,10 @@ const Index = () => {
   };
 
   const handleGenerateStories = async () => {
-    if (!groqApiKey) {
+    if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
       toast({
-        title: "API Key Required",
-        description: "Please enter your Groq API key to generate stories.",
+        title: "API Key Not Set",
+        description: "The Groq API key needs to be configured. Please provide it in the chat.",
         variant: "destructive",
       });
       return;
@@ -156,7 +132,7 @@ const Index = () => {
     setStories([]); // Clear previous stories
     
     try {
-      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: groqApiKey });
+      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: USER_PROVIDED_GROQ_API_KEY });
       setStories(generatedStories);
       toast({
         title: "User Stories Generated",
@@ -176,8 +152,8 @@ const Index = () => {
 
   const handleRegenerateStories = async (feedback: string) => {
     // Simple regeneration for now, feedback string is not used yet.
-     if (!groqApiKey) {
-      toast({ title: "API Key Required", description: "Groq API key needed.", variant: "destructive"});
+     if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
+      toast({ title: "API Key Not Set", description: "Groq API key needed. Please provide it in the chat.", variant: "destructive"});
       return;
     }
     if (epics.length === 0) {
@@ -186,7 +162,7 @@ const Index = () => {
     }
     setIsGeneratingStories(true);
     try {
-      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: groqApiKey });
+      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: USER_PROVIDED_GROQ_API_KEY });
       setStories(generatedStories);
       toast({
         title: "Stories Regenerated",
@@ -216,28 +192,6 @@ const Index = () => {
       <Header />
       
       <main className="container mx-auto px-6 py-12 space-y-12">
-        <div className="mb-8 p-6 bg-stone-100 dark:bg-stone-800 rounded-lg shadow">
-          <Label htmlFor="groqApiKey" className="text-lg font-semibold text-stone-700 dark:text-stone-300">Groq API Key</Label>
-          <div className="flex items-center space-x-2 mt-2">
-            <Input
-              id="groqApiKey"
-              type="password"
-              placeholder="Enter your Groq API key"
-              value={groqApiKey}
-              onChange={handleApiKeyChange}
-              className="flex-grow"
-            />
-            <Button onClick={handleSaveApiKey} variant="secondary">Save Key</Button>
-          </div>
-          <Alert variant="default" className="mt-4 bg-amber-50 border-amber-300 dark:bg-amber-900/30 dark:border-amber-700">
-            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-            <AlertTitle className="text-amber-700 dark:text-amber-300">API Key Security</AlertTitle>
-            <AlertDescription className="text-amber-600 dark:text-amber-400">
-              Your API key is stored in your browser's local storage for convenience during this session. For production applications, never expose API keys on the client-side. Use a secure backend proxy or serverless functions.
-            </AlertDescription>
-          </Alert>
-        </div>
-
         <BRDInput 
           onSubmit={handleBRDSubmit}
           workflowStep={getCurrentWorkflowStep()}
@@ -255,10 +209,10 @@ const Index = () => {
           />
         )}
         
-        {isEpicsFinalized && epics.length > 0 && ( // Added epics.length > 0 check
+        {isEpicsFinalized && epics.length > 0 && (
           <StoryGeneration
             stories={stories}
-            epics={epics} // Pass epics to StoryGeneration
+            epics={epics}
             isFinalized={isStoriesFinalized}
             isGenerating={isGeneratingStories}
             onGenerate={handleGenerateStories}
