@@ -4,27 +4,35 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileDown, MessageSquare, RefreshCw, CheckCircle, Play } from 'lucide-react';
+import { FileDown, MessageSquare, RefreshCw, CheckCircle, Play, RotateCcw, ArrowRight } from 'lucide-react';
 import { Story, Epic } from '../pages/Index';
 
 interface StoryGenerationProps {
   stories: Story[];
+  allStories: Story[];
   epics: Epic[];
   isFinalized: boolean;
   isGenerating: boolean;
+  hasRemainingEpics: boolean;
   onGenerate: () => void;
   onRegenerate: (feedback: string) => void;
   onFinalize: () => void;
+  onStartNewIteration: () => void;
+  onCompleteProcess: () => void;
 }
 
 const StoryGeneration: React.FC<StoryGenerationProps> = ({
   stories,
+  allStories,
   epics,
   isFinalized,
   isGenerating,
+  hasRemainingEpics,
   onGenerate,
   onRegenerate,
-  onFinalize
+  onFinalize,
+  onStartNewIteration,
+  onCompleteProcess
 }) => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -37,9 +45,9 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
   };
 
   const handleExport = () => {
-    // Mock export functionality
+    const exportData = allStories.length > 0 ? allStories : stories;
     const element = document.createElement('a');
-    const file = new Blob([JSON.stringify(stories, null, 2)], { type: 'application/json' });
+    const file = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
     element.href = URL.createObjectURL(file);
     element.download = 'user-stories.json';
     document.body.appendChild(element);
@@ -51,7 +59,10 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
     return epics.find(epic => epic.id === epicId)?.epic_name || 'Unknown Epic';
   };
 
-  if (stories.length === 0) {
+  const displayStories = allStories.length > 0 ? allStories : stories;
+  const isShowingAllStories = allStories.length > 0 && stories.length === 0;
+
+  if (stories.length === 0 && !isShowingAllStories) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -59,7 +70,7 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
             User Story Generation
           </CardTitle>
           <CardDescription>
-            Generate detailed user stories from your finalized epics.
+            Generate detailed user stories from your selected epics.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -89,20 +100,38 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="flex items-center space-x-2 text-xl font-serif text-stone-900 dark:text-stone-100">
-          <span>Generated User Stories</span>
+          <span>
+            {isShowingAllStories ? 'All Generated User Stories' : 'Current Iteration - User Stories'}
+          </span>
           {isFinalized && <CheckCircle className="w-5 h-5 text-green-600" />}
         </CardTitle>
         <CardDescription>
-          {isFinalized 
-            ? "Your user stories are finalized and ready for export."
-            : "Review and refine your generated user stories."
+          {isShowingAllStories 
+            ? `Complete collection of ${displayStories.length} user stories from all iterations.`
+            : isFinalized 
+              ? "Current iteration stories are finalized."
+              : `Review and refine your generated user stories for ${epics.length} selected epic(s).`
           }
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Iteration Summary */}
+        {!isShowingAllStories && (
+          <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <div className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
+              Current Iteration: {stories.length} stories for {epics.length} epic(s)
+            </div>
+            {allStories.length > 0 && (
+              <div className="text-sm text-amber-700 dark:text-amber-300">
+                Total stories across all iterations: {allStories.length + stories.length}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Story List */}
         <div className="space-y-6">
-          {stories.map((story, index) => (
+          {displayStories.map((story, index) => (
             <div
               key={story.id}
               className="p-6 border border-stone-200 dark:border-stone-700 rounded-lg bg-white dark:bg-stone-800"
@@ -193,7 +222,7 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
         )}
 
         {/* Feedback Section */}
-        {showFeedback && !isFinalized && (
+        {showFeedback && !isFinalized && !isShowingAllStories && (
           <div className="space-y-3 p-4 bg-stone-50 dark:bg-stone-800 rounded-lg border">
             <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Provide feedback for regeneration:
@@ -224,8 +253,8 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
           </div>
         )}
 
-        {/* Action Buttons */}
-        {!isFinalized && (
+        {/* Current Iteration Action Buttons */}
+        {!isFinalized && !isShowingAllStories && (
           <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
@@ -253,19 +282,52 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
               className="bg-green-700 hover:bg-green-600 flex items-center space-x-2"
             >
               <CheckCircle className="w-4 h-4" />
-              <span>Finalize</span>
+              <span>Finalize Current Iteration</span>
             </Button>
           </div>
         )}
 
+        {/* Iteration Complete Action Buttons */}
+        {isFinalized && !isShowingAllStories && (
+          <div className="flex flex-wrap gap-3">
+            {hasRemainingEpics ? (
+              <>
+                <Button
+                  onClick={onStartNewIteration}
+                  className="bg-amber-800 hover:bg-amber-700 flex items-center space-x-2"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  <span>Continue with Remaining Epics</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={onCompleteProcess}
+                  className="flex items-center space-x-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Complete Process</span>
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={onCompleteProcess}
+                className="bg-green-700 hover:bg-green-600 flex items-center space-x-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Complete Process</span>
+              </Button>
+            )}
+          </div>
+        )}
+
         {/* Export Button */}
-        {isFinalized && (
+        {(isFinalized || isShowingAllStories) && (
           <Button
             onClick={handleExport}
             className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
           >
             <FileDown className="w-4 h-4" />
-            <span>Export as .docx</span>
+            <span>Export Stories as JSON</span>
           </Button>
         )}
       </CardContent>
