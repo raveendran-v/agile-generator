@@ -2,6 +2,7 @@
 import { Epic, Story } from '@/pages/Index';
 
 const SUPABASE_URL = "https://zlpajojjkqbunewzrimo.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpscGFqb2pqa3FidW5ld3pyaW1vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk5MDAyNTQsImV4cCI6MjA2NTQ3NjI1NH0.Opo6adRGO9u8tnAbh0Z4Hio75ktjuqYB7rrdW8ug6Zs";
 
 export const generateEpicsWithGroq = async (
   brdContent: string
@@ -11,6 +12,8 @@ export const generateEpicsWithGroq = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({
         type: 'epics',
@@ -43,6 +46,8 @@ export const generateStoriesWithGroq = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey': SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({
         type: 'stories',
