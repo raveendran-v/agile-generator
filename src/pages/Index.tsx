@@ -286,6 +286,7 @@ const Index = () => {
             onFinalize={handleFinalizeEpics}
             onSelectEpic={handleSelectEpic}
             onGenerateStoriesForEpic={handleGenerateStoriesForEpic}
+            allStories={allStories}
           />
         )}
         

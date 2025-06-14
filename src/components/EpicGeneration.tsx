@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +22,7 @@ interface EpicGenerationProps {
   onFinalize: () => void;
   onSelectEpic?: (epicId: string) => void;
   onGenerateStoriesForEpic?: (epicId: string) => void;
+  allStories?: any[];
 }
 
 const EpicGeneration: React.FC<EpicGenerationProps> = ({
@@ -34,7 +36,8 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
   onRegenerate,
   onFinalize,
   onSelectEpic,
-  onGenerateStoriesForEpic
+  onGenerateStoriesForEpic,
+  allStories = []
 }) => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -108,6 +111,14 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
   const totalCount = allEpics.length;
   const availableCount = epics.length;
 
+  // Calculate stories per epic
+  const storiesPerEpic = allStories.reduce((acc, story) => {
+    acc[story.epicId] = (acc[story.epicId] || 0) + 1;
+    return acc;
+  }, {} as { [epicId: string]: number });
+
+  const totalStories = allStories.length;
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -129,6 +140,8 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
             totalEpics={totalCount}
             completedEpics={completedCount}
             availableEpics={availableCount}
+            totalStories={totalStories}
+            storiesPerEpic={storiesPerEpic}
           />
         )}
 

@@ -7,12 +7,16 @@ interface WorkflowProgressProps {
   totalEpics: number;
   completedEpics: number;
   availableEpics: number;
+  totalStories?: number;
+  storiesPerEpic?: { [epicId: string]: number };
 }
 
 const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
   totalEpics,
   completedEpics,
-  availableEpics
+  availableEpics,
+  totalStories = 0,
+  storiesPerEpic = {}
 }) => {
   const progressPercentage = totalEpics > 0 ? (completedEpics / totalEpics) * 100 : 0;
   
@@ -20,6 +24,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     {
       label: 'Completed',
       count: completedEpics,
+      subLabel: `${Object.values(storiesPerEpic).reduce((sum, count) => sum + count, 0)} stories`,
       color: 'text-green-600',
       bgColor: 'bg-green-100 dark:bg-green-900/30',
       borderColor: 'border-green-300 dark:border-green-700',
@@ -29,6 +34,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     {
       label: 'In Progress',
       count: availableEpics,
+      subLabel: 'Ready for stories',
       color: 'text-orange-600',
       bgColor: 'bg-orange-100 dark:bg-orange-900/30',
       borderColor: 'border-orange-300 dark:border-orange-700',
@@ -38,6 +44,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
     {
       label: 'Pending',
       count: totalEpics - completedEpics - availableEpics,
+      subLabel: 'Awaiting turn',
       color: 'text-gray-500',
       bgColor: 'bg-gray-100 dark:bg-gray-800',
       borderColor: 'border-gray-300 dark:border-gray-600',
@@ -56,9 +63,16 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-200">
             Project Progress
           </h3>
-          <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
-            {Math.round(progressPercentage)}%
-          </span>
+          <div className="text-right">
+            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+              {Math.round(progressPercentage)}%
+            </span>
+            {totalStories > 0 && (
+              <div className="text-xs text-stone-500 dark:text-stone-500">
+                {totalStories} stories total
+              </div>
+            )}
+          </div>
         </div>
         
         <div className="relative">
@@ -103,6 +117,9 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
                   <div className="text-xs font-medium text-stone-600 dark:text-stone-400 truncate">
                     {step.label}
                   </div>
+                  <div className="text-xs text-stone-500 dark:text-stone-500 truncate">
+                    {step.subLabel}
+                  </div>
                 </div>
               </div>
 
@@ -121,7 +138,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
           <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
             {completedEpics === totalEpics 
-              ? "🎉 All epics completed!" 
+              ? `🎉 All ${totalEpics} epics completed with ${totalStories} stories!` 
               : availableEpics > 0 
                 ? `${availableEpics} epic${availableEpics === 1 ? '' : 's'} ready for story generation`
                 : "Ready to begin story generation"
