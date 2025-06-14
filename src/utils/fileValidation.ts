@@ -40,16 +40,22 @@ export const extractTextFromFile = async (file: File): Promise<string> => {
         }
         
         try {
+          // Clean text by removing control characters and non-printable characters
           const cleanText = result
-            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '')
-            .replace(/[^\x20-\x7E\s]/g, '')
-            .replace(/\s+/g, ' ')
+            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters
+            .replace(/[^\x20-\x7E\s\u00A0-\uFFFF]/g, '') // Keep printable ASCII and Unicode characters
+            .replace(/\s+/g, ' ') // Normalize whitespace
             .trim();
           
           if (cleanText.length > 50) {
             resolve(cleanText);
           } else {
-            resolve(`Content extracted from ${file.name}\n\nFile contains: ${file.size} bytes of data\nFile type: ${file.type}\n\nNote: This is a simplified text extraction. For full document parsing, a specialized library would be needed.`);
+            resolve(`Content extracted from ${file.name}
+
+File contains: ${file.size} bytes of data
+File type: ${file.type}
+
+Note: This is a simplified text extraction. For full document parsing, a specialized library would be needed.`);
           }
         } catch (error) {
           reject(new Error('Failed to extract text from file'));

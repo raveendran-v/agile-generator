@@ -64,13 +64,19 @@ const FileUpload: React.FC<FileUploadProps> = ({
           <input
             ref={fileInputRef}
             id="file-upload"
+            name="file-upload"
             type="file"
             className="hidden"
             accept=".pdf,.docx,.txt"
             onChange={handleFileChange}
             disabled={disabled || isUploading}
+            aria-describedby="file-upload-description"
           />
         </label>
+      </div>
+
+      <div id="file-upload-description" className="sr-only">
+        Upload a business requirements document in PDF, DOCX, or TXT format, maximum size 10MB
       </div>
 
       {/* Upload Progress */}
@@ -80,7 +86,11 @@ const FileUpload: React.FC<FileUploadProps> = ({
             <span>Processing document...</span>
             <span>{uploadProgress}%</span>
           </div>
-          <Progress value={uploadProgress} className="h-2" />
+          <Progress 
+            value={uploadProgress} 
+            className="h-2" 
+            aria-label={`Upload progress: ${uploadProgress}%`}
+          />
         </div>
       )}
 
