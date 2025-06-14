@@ -5,7 +5,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { FileDown, MessageSquare, RefreshCw, CheckCircle, Play, RotateCcw, ArrowRight } from 'lucide-react';
 import { Story, Epic } from '../pages/Index';
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 
 interface StoryGenerationProps {
   stories: Story[];
@@ -46,110 +45,12 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
     setShowFeedback(false);
   };
 
-  const handleExport = async () => {
+  const handleExport = () => {
     const exportData = allStories.length > 0 ? allStories : stories;
-    
-    // Create a new document
-    const doc = new Document({
-      sections: [{
-        properties: {},
-        children: [
-          new Paragraph({
-            text: "User Stories",
-            heading: HeadingLevel.TITLE,
-          }),
-          new Paragraph({
-            text: `Generated on: ${new Date().toLocaleDateString()}`,
-            spacing: { after: 400 },
-          }),
-          ...exportData.flatMap((story, index) => [
-            new Paragraph({
-              text: `Story ${index + 1}: ${story.story_name}`,
-              heading: HeadingLevel.HEADING_1,
-              spacing: { before: 400, after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Epic: ", bold: true }),
-                new TextRun(getEpicName(story.epicId)),
-              ],
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Description: ", bold: true }),
-                new TextRun(story.description),
-              ],
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Label: ", bold: true }),
-                new TextRun(story.label),
-              ],
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: "Status: ", bold: true }),
-                new TextRun(story.status),
-              ],
-              spacing: { after: 200 },
-            }),
-            new Paragraph({
-              text: "Acceptance Criteria:",
-              heading: HeadingLevel.HEADING_2,
-              spacing: { before: 200, after: 100 },
-            }),
-            ...story.acceptance_criteria.map(criteria => 
-              new Paragraph({
-                text: `• ${criteria}`,
-                spacing: { after: 100 },
-              })
-            ),
-            new Paragraph({
-              text: "Non-Functional Requirements:",
-              heading: HeadingLevel.HEADING_2,
-              spacing: { before: 200, after: 100 },
-            }),
-            ...story.nfrs.map(nfr => 
-              new Paragraph({
-                text: `• ${nfr}`,
-                spacing: { after: 100 },
-              })
-            ),
-            new Paragraph({
-              text: "Definition of Done:",
-              heading: HeadingLevel.HEADING_2,
-              spacing: { before: 200, after: 100 },
-            }),
-            ...story.dod.map(item => 
-              new Paragraph({
-                text: `• ${item}`,
-                spacing: { after: 100 },
-              })
-            ),
-            new Paragraph({
-              text: "Definition of Ready:",
-              heading: HeadingLevel.HEADING_2,
-              spacing: { before: 200, after: 100 },
-            }),
-            ...story.dor.map(item => 
-              new Paragraph({
-                text: `• ${item}`,
-                spacing: { after: 100 },
-              })
-            ),
-          ])
-        ],
-      }],
-    });
-
-    // Generate and download the document
-    const blob = await Packer.toBlob(doc);
     const element = document.createElement('a');
-    element.href = URL.createObjectURL(blob);
-    element.download = 'user-stories.docx';
+    const file = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    element.href = URL.createObjectURL(file);
+    element.download = 'user-stories.json';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -402,14 +303,6 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
             </Button>
             
             <Button
-              onClick={handleExport}
-              className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
-            >
-              <FileDown className="w-4 h-4" />
-              <span>Export as DOCX</span>
-            </Button>
-            
-            <Button
               onClick={onFinalize}
               disabled={isGenerating}
               className="bg-green-700 hover:bg-green-600 flex items-center space-x-2"
@@ -450,25 +343,17 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
                 <span>Complete Process</span>
               </Button>
             )}
-
-            <Button
-              onClick={handleExport}
-              className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
-            >
-              <FileDown className="w-4 h-4" />
-              <span>Export as DOCX</span>
-            </Button>
           </div>
         )}
 
-        {/* Export Button for All Stories View */}
-        {isShowingAllStories && (
+        {/* Export Button */}
+        {(isFinalized || isShowingAllStories) && (
           <Button
             onClick={handleExport}
             className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
           >
             <FileDown className="w-4 h-4" />
-            <span>Export as DOCX</span>
+            <span>Export Stories as JSON</span>
           </Button>
         )}
       </CardContent>
