@@ -6,6 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { FileDown, MessageSquare, RefreshCw, CheckCircle, Info, Play } from 'lucide-react';
 import { Epic } from '../pages/Index';
+import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
 
 interface EpicGenerationProps {
   epics: Epic[];
@@ -52,11 +53,50 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
     }
   };
 
-  const handleExport = () => {
+  const handleExport = async () => {
+    // Create a new document
+    const doc = new Document({
+      sections: [{
+        properties: {},
+        children: [
+          new Paragraph({
+            text: "Epics",
+            heading: HeadingLevel.TITLE,
+          }),
+          new Paragraph({
+            text: `Generated on: ${new Date().toLocaleDateString()}`,
+            spacing: { after: 400 },
+          }),
+          ...allEpics.flatMap((epic, index) => [
+            new Paragraph({
+              text: `Epic ${index + 1}: ${epic.epic_name}`,
+              heading: HeadingLevel.HEADING_1,
+              spacing: { before: 400, after: 200 },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Description: ", bold: true }),
+                new TextRun(epic.epic_description),
+              ],
+              spacing: { after: 200 },
+            }),
+            new Paragraph({
+              children: [
+                new TextRun({ text: "Status: ", bold: true }),
+                new TextRun(epicsWithStories.has(epic.id) ? "Completed" : "Pending"),
+              ],
+              spacing: { after: 200 },
+            }),
+          ])
+        ],
+      }],
+    });
+
+    // Generate and download the document
+    const blob = await Packer.toBlob(doc);
     const element = document.createElement('a');
-    const file = new Blob([JSON.stringify(allEpics, null, 2)], { type: 'application/json' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'epics.json';
+    element.href = URL.createObjectURL(blob);
+    element.download = 'epics.docx';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -232,7 +272,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
             className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
           >
             <FileDown className="w-4 h-4" />
-            <span>Export Epics</span>
+            <span>Export as DOCX</span>
           </Button>
         )}
       </CardContent>
