@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -32,17 +31,25 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Groq function called');
+    
     const { type, content, epics, brdContent } = await req.json();
+    console.log('Request type:', type);
     
     // Get the Groq API key from secrets
     const groqApiKey = Deno.env.get('GROQ_API_KEY');
+    console.log('Groq API key available:', !!groqApiKey);
+    
     if (!groqApiKey) {
+      console.error('GROQ_API_KEY not found in environment variables');
       throw new Error('GROQ_API_KEY not found in environment variables');
     }
 
     const GROQ_MODEL = 'llama3-8b-8192';
 
     if (type === 'epics') {
+      console.log('Generating epics...');
+      
       const systemPrompt = `You are an expert project manager. Based on the following Business Requirements Document (BRD), generate a list of high-level epics.
 Each epic MUST have an 'id' (a unique string, e.g., "epic_1", "epic_2"), 'epic_name' (a concise title), and 'epic_description' (a short explanation).
 Return the output ONLY as a valid JSON array of objects. Each object in the array should conform to this structure:
@@ -56,6 +63,8 @@ ${content}
 ---
 Generate epics based on the BRD content above. Ensure the output is ONLY a valid JSON array.`;
 
+      console.log('Making request to Groq API for epics...');
+      
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -72,7 +81,11 @@ Generate epics based on the BRD content above. Ensure the output is ONLY a valid
         }),
       });
 
+      console.log('Groq API response status:', response.status);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Groq API error:', response.status, errorText);
         throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
       }
 
@@ -80,18 +93,31 @@ Generate epics based on the BRD content above. Ensure the output is ONLY a valid
       const responseContent = data.choices[0]?.message?.content;
       
       if (!responseContent) {
+        console.error('No content received from Groq API for epics');
         throw new Error('No content received from Groq API for epics.');
       }
 
       console.log("Raw Groq response (Epics):", responseContent);
-      const cleanedResponse = responseContent.trim().match(/(\[.*\]|\{.*\})/s)?.[0] || responseContent;
-      const generatedEpics = JSON.parse(cleanedResponse) as Epic[];
+      
+      try {
+        const cleanedResponse = responseContent.trim().match(/(\[.*\]|\{.*\})/s)?.[0] || responseContent;
+        const generatedEpics = JSON.parse(cleanedResponse) as Epic[];
+        
+        console.log('Successfully parsed epics:', generatedEpics.length);
 
-      return new Response(
-        JSON.stringify({ epics: generatedEpics }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+        return new Response(
+          JSON.stringify({ epics: generatedEpics }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (parseError) {
+        console.error('Failed to parse Groq response:', parseError);
+        console.error('Raw response:', responseContent);
+        throw new Error('Failed to parse AI response as valid JSON');
+      }
+      
     } else if (type === 'stories') {
+      console.log('Generating stories...');
+      
       const systemPrompt = `You are an expert agile product owner. Based on the following epics (and the original BRD for context), generate detailed user stories for each epic.
 Each story MUST have:
 - 'id' (unique string, e.g., "story_1")
@@ -118,6 +144,8 @@ ${brdContent}
 ---
 Generate user stories for the epics provided above. Ensure the output is ONLY a valid JSON array.`;
 
+      console.log('Making request to Groq API for stories...');
+
       const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -134,7 +162,11 @@ Generate user stories for the epics provided above. Ensure the output is ONLY a 
         }),
       });
 
+      console.log('Groq API response status for stories:', response.status);
+
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Groq API error for stories:', response.status, errorText);
         throw new Error(`Groq API error: ${response.status} ${response.statusText}`);
       }
 
@@ -142,17 +174,28 @@ Generate user stories for the epics provided above. Ensure the output is ONLY a 
       const responseContent = data.choices[0]?.message?.content;
       
       if (!responseContent) {
+        console.error('No content received from Groq API for stories');
         throw new Error('No content received from Groq API for stories.');
       }
 
       console.log("Raw Groq response (Stories):", responseContent);
-      const cleanedResponse = responseContent.trim().match(/(\[.*\]|\{.*\})/s)?.[0] || responseContent;
-      const generatedStories = JSON.parse(cleanedResponse) as Story[];
+      
+      try {
+        const cleanedResponse = responseContent.trim().match(/(\[.*\]|\{.*\})/s)?.[0] || responseContent;
+        const generatedStories = JSON.parse(cleanedResponse) as Story[];
+        
+        console.log('Successfully parsed stories:', generatedStories.length);
 
-      return new Response(
-        JSON.stringify({ stories: generatedStories }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+        return new Response(
+          JSON.stringify({ stories: generatedStories }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      } catch (parseError) {
+        console.error('Failed to parse stories response:', parseError);
+        console.error('Raw response:', responseContent);
+        throw new Error('Failed to parse AI response as valid JSON');
+      }
+      
     } else {
       throw new Error('Invalid request type. Must be "epics" or "stories".');
     }
