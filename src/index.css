@@ -5,7 +5,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Enhanced design system with improved dark mode */
+/* Updated design system with maroon and blue color palette to match brand */
 
 @layer base {
   :root {
@@ -50,42 +50,42 @@
   }
 
   .dark {
-    --background: 222 84% 3%; /* Deeper dark background */
-    --foreground: 210 40% 98%; /* Bright white text */
+    --background: 0 0% 8%; /* Dark background */
+    --foreground: 0 0% 95%; /* Light text */
 
-    --card: 222 84% 4%; /* Slightly lighter card background */
-    --card-foreground: 210 40% 95%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 222 84% 4%;
-    --popover-foreground: 210 40% 95%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 0 72% 55%; /* More vibrant maroon for dark mode */
-    --primary-foreground: 210 40% 98%;
+    --primary: 0 60% 45%; /* Lighter maroon for dark mode */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 217 32% 15%; /* Better contrast secondary */
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 210 100% 60%; /* Brighter blue for dark mode */
+    --secondary-foreground: 0 0% 8%;
 
-    --muted: 217 32% 8%; /* Darker muted background */
-    --muted-foreground: 215 20% 70%; /* Better contrast muted text */
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 210 100% 70%; /* Brighter blue accent for dark mode */
-    --accent-foreground: 222 84% 3%;
+    --accent: 210 100% 60%;
+    --accent-foreground: 0 0% 8%;
 
-    --destructive: 0 84% 65%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 50%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217 32% 20%; /* More visible borders */
-    --input: 217 32% 10%; /* Darker input backgrounds */
-    --ring: 0 72% 55%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 60% 45%;
 
-    --sidebar-background: 222 84% 3%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 0 72% 55%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217 32% 8%;
-    --sidebar-accent-foreground: 210 40% 95%;
-    --sidebar-border: 217 32% 20%;
-    --sidebar-ring: 0 72% 55%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 60% 45%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 0 60% 45%;
   }
 }
 
@@ -98,40 +98,14 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .font-serif {
     font-family: 'Playfair Display', serif;
   }
-
-  /* Improved scrollbar for dark mode */
-  ::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  ::-webkit-scrollbar-track {
-    @apply bg-muted;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    @apply bg-border rounded-full;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground;
-  }
-
-  .dark ::-webkit-scrollbar-thumb {
-    @apply bg-border/60;
-  }
-
-  .dark ::-webkit-scrollbar-thumb:hover {
-    @apply bg-border;
-  }
 }
 
-/* Enhanced gradient backgrounds for dark mode */
+/* Custom gradient backgrounds */
 @layer utilities {
   .gradient-primary {
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
@@ -143,79 +117,11 @@
   
   .glass-effect {
     backdrop-filter: blur(12px);
-    @apply bg-card/90 border border-border/30;
-  }
-  
-  .dark .glass-effect {
-    backdrop-filter: blur(16px);
-    @apply bg-card/70 border-border/40;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
   }
   
   .shadow-modern {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  }
-  
-  .dark .shadow-modern {
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
-  }
-
-  /* Enhanced text colors for better readability */
-  .text-enhanced {
-    @apply text-foreground/95;
-  }
-
-  .text-enhanced-muted {
-    @apply text-muted-foreground/85;
-  }
-
-  .dark .text-enhanced {
-    @apply text-foreground/98;
-  }
-
-  .dark .text-enhanced-muted {
-    @apply text-muted-foreground/90;
-  }
-
-  /* Improved hover effects */
-  .hover-enhanced {
-    @apply hover:bg-accent/10 hover:text-accent-foreground transition-all duration-200;
-  }
-
-  .dark .hover-enhanced {
-    @apply hover:bg-accent/15 hover:text-accent-foreground;
-  }
-}
-
-/* Enhanced focus states for better accessibility */
-@layer components {
-  .focus-enhanced {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
-  }
-
-  /* Better button styling in dark mode */
-  .btn-dark-enhanced {
-    @apply shadow-lg hover:shadow-xl transition-all duration-200;
-  }
-
-  .dark .btn-dark-enhanced {
-    @apply shadow-2xl hover:shadow-modern;
-  }
-
-  /* Enhanced card styling for dark mode */
-  .card-enhanced {
-    @apply bg-card border border-border/50 shadow-sm;
-  }
-
-  .dark .card-enhanced {
-    @apply bg-card/95 border-border/60 shadow-lg;
-  }
-
-  /* Better input styling for dark mode */
-  .input-enhanced {
-    @apply bg-background border-border focus:border-ring;
-  }
-
-  .dark .input-enhanced {
-    @apply bg-input/50 border-border/70 focus:border-ring;
   }
 }
