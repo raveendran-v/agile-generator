@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -131,7 +130,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
                         {isFinalized && (
                           <Button size="sm" className="bg-amber-800 hover:bg-amber-700">
                             <Play className="w-3 h-3 mr-1" />
-                            Select
+                            Generate Story
                           </Button>
                         )}
                       </div>
