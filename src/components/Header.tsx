@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Moon, Sun, Zap } from 'lucide-react';
+import { Moon, Sun, Zap, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/theme-provider';
 
@@ -9,6 +9,10 @@ const Header = () => {
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const handleStartOver = () => {
+    window.location.reload();
   };
 
   return (
@@ -21,16 +25,28 @@ const Header = () => {
           </h1>
         </div>
         
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
-        >
-          <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-          <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-          <span className="sr-only">Toggle theme</span>
-        </Button>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleStartOver}
+            className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 flex items-center space-x-2"
+          >
+            <RotateCcw className="h-4 w-4" />
+            <span>Start Over</span>
+          </Button>
+          
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
+          >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+            <span className="sr-only">Toggle theme</span>
+          </Button>
+        </div>
       </div>
     </header>
   );
