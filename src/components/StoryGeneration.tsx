@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -19,6 +18,7 @@ interface StoryGenerationProps {
   onFinalize: () => void;
   onStartNewIteration: () => void;
   onCompleteProcess: () => void;
+  autoGenerate?: boolean;
 }
 
 const StoryGeneration: React.FC<StoryGenerationProps> = ({
@@ -32,7 +32,8 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
   onRegenerate,
   onFinalize,
   onStartNewIteration,
-  onCompleteProcess
+  onCompleteProcess,
+  autoGenerate = false
 }) => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -62,7 +63,8 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
   const displayStories = allStories.length > 0 ? allStories : stories;
   const isShowingAllStories = allStories.length > 0 && stories.length === 0;
 
-  if (stories.length === 0 && !isShowingAllStories) {
+  // Only show the generate button if autoGenerate is false and there are no stories
+  if (stories.length === 0 && !isShowingAllStories && !autoGenerate) {
     return (
       <Card className="w-full">
         <CardHeader>
@@ -91,6 +93,30 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
               </span>
             </div>
           )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Show loading state when auto-generating and no stories yet
+  if (stories.length === 0 && !isShowingAllStories && autoGenerate && isGenerating) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-xl font-serif text-stone-900 dark:text-stone-100">
+            User Story Generation
+          </CardTitle>
+          <CardDescription>
+            Generating detailed user stories from your selected epic.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center space-x-2 py-8">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-800"></div>
+            <span className="text-stone-600 dark:text-stone-400">
+              Generating user stories from your epic...
+            </span>
+          </div>
         </CardContent>
       </Card>
     );

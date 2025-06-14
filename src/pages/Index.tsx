@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import BRDInput from '../components/BRDInput';
@@ -112,6 +111,36 @@ const Index = () => {
       title: "Epics Finalized",
       description: `${epics.length} epics are now locked. Select an epic to generate user stories.`
     });
+  };
+
+  const handleGenerateStoriesForEpic = async (epicId: string) => {
+    setSelectedEpicId(epicId);
+    setCurrentIterationStories([]);
+    setIsCurrentIterationFinalized(false);
+    setCurrentWorkflowStep('stories');
+    
+    const selectedEpic = epics.find(epic => epic.id === epicId);
+    if (!selectedEpic) return;
+    
+    setIsGeneratingStories(true);
+    
+    try {
+      const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
+      setCurrentIterationStories(generatedStories);
+      toast({
+        title: "User Stories Generated",
+        description: `Generated ${generatedStories.length} user stories for the selected epic using Groq AI.`
+      });
+    } catch (error) {
+      console.error("Generate Stories Error:", error);
+      toast({
+        title: "Error Generating Stories",
+        description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingStories(false);
+    }
   };
 
   const handleSelectEpic = (epicId: string) => {
@@ -256,6 +285,7 @@ const Index = () => {
             onRegenerate={handleRegenerateEpics}
             onFinalize={handleFinalizeEpics}
             onSelectEpic={handleSelectEpic}
+            onGenerateStoriesForEpic={handleGenerateStoriesForEpic}
           />
         )}
         
@@ -272,6 +302,7 @@ const Index = () => {
             onFinalize={handleFinalizeCurrentIteration}
             onStartNewIteration={handleContinueForRemainingEpics}
             onCompleteProcess={handleEndFlow}
+            autoGenerate={true}
           />
         )}
         
@@ -288,6 +319,7 @@ const Index = () => {
             onFinalize={() => {}}
             onStartNewIteration={() => {}}
             onCompleteProcess={() => {}}
+            autoGenerate={false}
           />
         )}
       </main>

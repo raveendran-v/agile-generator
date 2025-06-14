@@ -18,6 +18,7 @@ interface EpicGenerationProps {
   onRegenerate: (feedback: string) => void;
   onFinalize: () => void;
   onSelectEpic?: (epicId: string) => void;
+  onGenerateStoriesForEpic?: (epicId: string) => void;
 }
 
 const EpicGeneration: React.FC<EpicGenerationProps> = ({
@@ -30,7 +31,8 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
   onEpicSelectionChange,
   onRegenerate,
   onFinalize,
-  onSelectEpic
+  onSelectEpic,
+  onGenerateStoriesForEpic
 }) => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [feedback, setFeedback] = useState('');
@@ -40,6 +42,14 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
     onRegenerate(feedback);
     setFeedback('');
     setShowFeedback(false);
+  };
+
+  const handleGenerateStory = (epicId: string) => {
+    if (onGenerateStoriesForEpic) {
+      onGenerateStoriesForEpic(epicId);
+    } else if (onSelectEpic) {
+      onSelectEpic(epicId);
+    }
   };
 
   const handleExport = () => {
@@ -107,12 +117,11 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
             epics.map((epic, index) => (
               <div
                 key={epic.id}
-                className={`p-4 border rounded-lg transition-all cursor-pointer ${
+                className={`p-4 border rounded-lg transition-all ${
                   isFinalized 
-                    ? 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 hover:border-amber-300'
+                    ? 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800'
                     : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800'
                 }`}
-                onClick={isFinalized ? () => onSelectEpic?.(epic.id) : undefined}
               >
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0 w-8 h-8 bg-amber-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
@@ -128,7 +137,11 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
                           Pending
                         </Badge>
                         {isFinalized && (
-                          <Button size="sm" className="bg-amber-800 hover:bg-amber-700">
+                          <Button 
+                            size="sm" 
+                            className="bg-amber-800 hover:bg-amber-700"
+                            onClick={() => handleGenerateStory(epic.id)}
+                          >
                             <Play className="w-3 h-3 mr-1" />
                             Generate Story
                           </Button>
