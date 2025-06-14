@@ -3,20 +3,88 @@ import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText } from 'lucide-react';
+import { Upload, FileText, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface BRDInputProps {
   onSubmit: (content: string) => void;
+  workflowStep?: 'brd' | 'epics' | 'stories';
+  isGeneratingEpics?: boolean;
+  isGeneratingStories?: boolean;
 }
 
-const BRDInput: React.FC<BRDInputProps> = ({ onSubmit }) => {
+const BRDInput: React.FC<BRDInputProps> = ({ 
+  onSubmit, 
+  workflowStep = 'brd',
+  isGeneratingEpics = false,
+  isGeneratingStories = false 
+}) => {
   const [content, setContent] = useState('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  // Calculate workflow progress
+  const getWorkflowProgress = () => {
+    if (workflowStep === 'brd' && !uploadedFile) return 0;
+    if (workflowStep === 'brd' && uploadedFile) return 33;
+    if (workflowStep === 'epics' || isGeneratingEpics) return 66;
+    if (workflowStep === 'stories' || isGeneratingStories) return 100;
+    return 0;
+  };
+
+  const getWorkflowStepText = () => {
+    if (isGeneratingStories) return 'Generating Stories...';
+    if (isGeneratingEpics) return 'Generating Epics...';
+    if (workflowStep === 'stories') return 'Stories Complete';
+    if (workflowStep === 'epics') return 'Epics Complete';
+    if (uploadedFile) return 'BRD Uploaded';
+    return 'Upload BRD';
+  };
+
+  const extractTextFromFile = async (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      
+      reader.onload = (event) => {
+        const result = event.target?.result;
+        if (typeof result === 'string') {
+          // For text files, return content directly
+          if (file.type === 'text/plain') {
+            resolve(result);
+            return;
+          }
+          
+          // For other files, try to extract text content
+          // This is a simplified extraction - in a real app, you'd use proper parsers
+          try {
+            // Remove any binary characters and extract readable text
+            const cleanText = result
+              .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F-\x9F]/g, '') // Remove control characters
+              .replace(/[^\x20-\x7E\s]/g, '') // Keep only printable ASCII and whitespace
+              .replace(/\s+/g, ' ') // Normalize whitespace
+              .trim();
+            
+            if (cleanText.length > 50) {
+              resolve(cleanText);
+            } else {
+              // Fallback for files that don't extract well
+              resolve(`Content extracted from ${file.name}\n\nFile contains: ${file.size} bytes of data\nFile type: ${file.type}\n\nNote: This is a simplified text extraction. For full document parsing, a specialized library would be needed.`);
+            }
+          } catch (error) {
+            reject(new Error('Failed to extract text from file'));
+          }
+        } else {
+          reject(new Error('Failed to read file'));
+        }
+      };
+      
+      reader.onerror = () => reject(new Error('File reading failed'));
+      reader.readAsText(file);
+    });
+  };
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -50,7 +118,7 @@ const BRDInput: React.FC<BRDInputProps> = ({ onSubmit }) => {
     setUploadProgress(0);
 
     try {
-      // Simulate file processing with progress updates
+      // Show upload progress
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
@@ -61,32 +129,12 @@ const BRDInput: React.FC<BRDInputProps> = ({ onSubmit }) => {
         });
       }, 150);
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Extract actual content from the file
+      const extractedContent = await extractTextFromFile(file);
+      
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
-      // Mock file content extraction
-      const mockContent = `Business Requirements Document
-
-Project Overview:
-This project aims to develop a comprehensive web application for managing business processes and workflows.
-
-Key Requirements:
-1. User Authentication System
-2. Document Management Capabilities  
-3. Automated Workflow Processing
-4. Reporting and Analytics Dashboard
-5. Integration with External APIs
-6. Mobile-Responsive Design
-7. Data Security and Compliance
-
-Success Criteria:
-- Improved operational efficiency by 40%
-- Reduced processing time by 60%
-- Enhanced user satisfaction scores
-- Full compliance with industry standards`;
-
-      setContent(mockContent);
+      setContent(extractedContent);
       
       toast({
         title: "File Uploaded Successfully",
@@ -99,6 +147,7 @@ Success Criteria:
         variant: "destructive"
       });
       setUploadProgress(0);
+      setUploadedFile(null);
     } finally {
       setIsUploading(false);
     }
@@ -117,9 +166,46 @@ Success Criteria:
     onSubmit(content);
   };
 
+  const workflowProgress = getWorkflowProgress();
+
   return (
     <div className="w-full space-y-6">
-      {/* Progress Bar */}
+      {/* Workflow Progress Bar */}
+      <div className="w-full space-y-3">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold text-stone-800 dark:text-stone-200">
+            Progress Workflow
+          </h3>
+          <span className="text-sm text-stone-600 dark:text-stone-400">
+            {Math.round(workflowProgress)}% Complete
+          </span>
+        </div>
+        
+        <Progress value={workflowProgress} className="h-3" />
+        
+        <div className="flex justify-between items-center text-xs">
+          <div className={`flex items-center space-x-1 ${workflowProgress >= 33 ? 'text-green-600 dark:text-green-400' : 'text-stone-500'}`}>
+            {workflowProgress >= 33 && <CheckCircle className="w-3 h-3" />}
+            <span>BRD Upload</span>
+          </div>
+          <div className={`flex items-center space-x-1 ${workflowProgress >= 66 ? 'text-green-600 dark:text-green-400' : 'text-stone-500'}`}>
+            {workflowProgress >= 66 && <CheckCircle className="w-3 h-3" />}
+            <span>Epics</span>
+          </div>
+          <div className={`flex items-center space-x-1 ${workflowProgress >= 100 ? 'text-green-600 dark:text-green-400' : 'text-stone-500'}`}>
+            {workflowProgress >= 100 && <CheckCircle className="w-3 h-3" />}
+            <span>Stories</span>
+          </div>
+        </div>
+        
+        <div className="text-center">
+          <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
+            {getWorkflowStepText()}
+          </span>
+        </div>
+      </div>
+
+      {/* File Upload Progress (only shown during upload) */}
       {isUploading && (
         <div className="w-full space-y-2">
           <div className="flex justify-between text-sm text-stone-600 dark:text-stone-400">

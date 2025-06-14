@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import BRDInput from '../components/BRDInput';
@@ -35,6 +34,14 @@ const Index = () => {
   const [isGeneratingEpics, setIsGeneratingEpics] = useState(false);
   const [isGeneratingStories, setIsGeneratingStories] = useState(false);
   const { toast } = useToast();
+
+  // Get current workflow step
+  const getCurrentWorkflowStep = () => {
+    if (isStoriesFinalized) return 'stories';
+    if (isEpicsFinalized || stories.length > 0) return 'stories';
+    if (epics.length > 0) return 'epics';
+    return 'brd';
+  };
 
   const handleBRDSubmit = async (content: string) => {
     setBrdContent(content);
@@ -245,7 +252,12 @@ const Index = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8 space-y-8">
-        <BRDInput onSubmit={handleBRDSubmit} />
+        <BRDInput 
+          onSubmit={handleBRDSubmit}
+          workflowStep={getCurrentWorkflowStep()}
+          isGeneratingEpics={isGeneratingEpics}
+          isGeneratingStories={isGeneratingStories}
+        />
         
         {epics.length > 0 && (
           <EpicGeneration
