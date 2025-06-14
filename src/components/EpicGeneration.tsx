@@ -97,7 +97,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
     const blob = await Packer.toBlob(doc);
     const element = document.createElement('a');
     element.href = URL.createObjectURL(blob);
-    element.download = 'epics.docx';
+    element.download = 'project-epics.docx';
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
@@ -273,7 +273,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
             className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
           >
             <FileDown className="w-4 h-4" />
-            <span>Export Epics</span>
+            <span>Export Epics as DOCX</span>
           </Button>
         )}
       </CardContent>
