@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -380,8 +381,19 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
           </div>
         )}
 
+        {/* Export Button - Now shows whenever there are stories to export */}
+        {displayStories.length > 0 && (
+          <Button
+            onClick={handleExport}
+            className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
+          >
+            <FileDown className="w-4 h-4" />
+            <span>Export Stories as DOCX</span>
+          </Button>
+        )}
+
         {/* Current Iteration Action Buttons */}
-        {!isFinalized && !isShowingAllStories && (
+        {!isFinalized && !isShowingAllStories && displayStories.length > 0 && (
           <div className="flex flex-wrap gap-3">
             <Button
               variant="outline"
@@ -445,17 +457,6 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
               </Button>
             )}
           </div>
-        )}
-
-        {/* Export Button */}
-        {(isFinalized || isShowingAllStories) && (
-          <Button
-            onClick={handleExport}
-            className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
-          >
-            <FileDown className="w-4 h-4" />
-            <span>Export Stories as DOCX</span>
-          </Button>
         )}
       </CardContent>
     </Card>
