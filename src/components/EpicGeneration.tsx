@@ -120,9 +120,9 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
   const totalStories = allStories.length;
 
   return (
-    <Card className="w-full shadow-modern bg-card border-border/50">
-      <CardHeader className="bg-gradient-to-r from-card to-muted/30 border-b border-border/50">
-        <CardTitle className="flex items-center space-x-2 text-xl font-serif text-foreground">
+    <Card className="w-full shadow-modern card-enhanced">
+      <CardHeader className="bg-gradient-to-r from-card to-muted/30 dark:from-card/90 dark:to-muted/20 border-b border-border/50 dark:border-border/60">
+        <CardTitle className="flex items-center space-x-2 text-xl font-serif text-enhanced">
           <span>Epic Management</span>
           {isFinalized && <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />}
         </CardTitle>
@@ -150,32 +150,32 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
           {availableCount === 0 ? (
             <div className="text-center py-8 text-enhanced-muted">
               <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500 dark:text-green-400" />
-              <h3 className="font-semibold mb-2 text-foreground">All Epics Complete!</h3>
+              <h3 className="font-semibold mb-2 text-enhanced">All Epics Complete!</h3>
               <p>All epics have user stories generated. You can export your complete project.</p>
             </div>
           ) : (
             epics.map((epic, index) => (
               <div
                 key={epic.id}
-                className={`p-4 border rounded-lg transition-all hover:shadow-lg bg-card border-border/50 hover:border-border`}
+                className={`p-4 border rounded-lg transition-all hover:shadow-lg card-enhanced hover:border-border/80 dark:hover:border-border/90`}
               >
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-amber-800 dark:bg-amber-700 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  <div className="flex-shrink-0 w-8 h-8 bg-amber-800/90 dark:bg-amber-700/90 text-white rounded-full flex items-center justify-center text-sm font-medium shadow-sm">
                     {allEpics.findIndex(e => e.id === epic.id) + 1}
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-foreground">
+                      <h3 className="font-semibold text-enhanced">
                         {epic.epic_name}
                       </h3>
                       <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className="text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-600">
+                        <Badge variant="outline" className="text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-500/60 bg-orange-50 dark:bg-orange-900/20">
                           Pending
                         </Badge>
                         {isFinalized && (
                           <Button 
                             size="sm" 
-                            className="bg-amber-800 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 btn-dark-enhanced"
+                            className="bg-amber-800 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 btn-dark-enhanced text-white"
                             onClick={() => handleGenerateStory(epic.id)}
                           >
                             <Play className="w-3 h-3 mr-1" />
@@ -206,8 +206,8 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
 
         {/* Feedback Section */}
         {showFeedback && !isFinalized && (
-          <div className="space-y-3 p-4 bg-muted/50 rounded-lg border border-border/50">
-            <label className="text-sm font-medium text-foreground">
+          <div className="space-y-3 p-4 bg-muted/50 dark:bg-muted/30 rounded-lg border border-border/50 dark:border-border/60">
+            <label className="text-sm font-medium text-enhanced">
               Provide feedback for regeneration:
             </label>
             <Textarea
@@ -215,14 +215,14 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Describe what changes you'd like to see in the epics..."
               rows={3}
-              className="bg-background border-border focus:border-ring"
+              className="input-enhanced"
             />
             <div className="flex space-x-2">
               <Button
                 onClick={handleRegenerate}
                 disabled={!feedback.trim() || isGenerating}
                 size="sm"
-                className="bg-amber-800 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 btn-dark-enhanced"
+                className="bg-amber-800 hover:bg-amber-700 dark:bg-amber-700 dark:hover:bg-amber-600 btn-dark-enhanced text-white"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Regenerate
@@ -231,7 +231,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFeedback(false)}
-                className="hover-enhanced"
+                className="hover-enhanced border-border/60 dark:border-border/70"
               >
                 Cancel
               </Button>
@@ -246,7 +246,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
               variant="outline"
               onClick={() => setShowFeedback(!showFeedback)}
               disabled={isGenerating}
-              className="flex items-center space-x-2 hover-enhanced"
+              className="flex items-center space-x-2 hover-enhanced border-border/60 dark:border-border/70"
             >
               <MessageSquare className="w-4 h-4" />
               <span>Feedback</span>
@@ -255,7 +255,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
             <Button
               onClick={onFinalize}
               disabled={isGenerating}
-              className="bg-green-700 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500 flex items-center space-x-2 btn-dark-enhanced"
+              className="bg-green-700 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-500 flex items-center space-x-2 btn-dark-enhanced text-white"
             >
               <CheckCircle className="w-4 h-4" />
               <span>Finalize Epics</span>
@@ -267,7 +267,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
         {(availableCount === 0 || isFinalized) && (
           <Button
             onClick={handleExport}
-            className="bg-blue-600 hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500 flex items-center space-x-2 btn-dark-enhanced"
+            className="bg-blue-600 hover:bg-blue-500 dark:bg-blue-600 dark:hover:bg-blue-500 flex items-center space-x-2 btn-dark-enhanced text-white"
           >
             <FileDown className="w-4 h-4" />
             <span>Export Epics as DOCX</span>
