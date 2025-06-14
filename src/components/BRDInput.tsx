@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface BRDInputProps {
   onSubmit: (content: string) => void;
-  workflowStep?: 'brd' | 'epics' | 'stories';
+  workflowStep?: 'brd' | 'epics' | 'stories' | 'iteration-complete';
   isGeneratingEpics?: boolean;
   isGeneratingStories?: boolean;
 }
@@ -30,13 +30,14 @@ const BRDInput: React.FC<BRDInputProps> = ({
     if (workflowStep === 'brd' && !uploadedFile) return 0;
     if (workflowStep === 'brd' && uploadedFile) return 33;
     if (workflowStep === 'epics' || isGeneratingEpics) return 66;
-    if (workflowStep === 'stories' || isGeneratingStories) return 100;
+    if (workflowStep === 'stories' || workflowStep === 'iteration-complete' || isGeneratingStories) return 100;
     return 0;
   };
 
   const getWorkflowStepText = () => {
     if (isGeneratingStories) return 'Generating Stories...';
     if (isGeneratingEpics) return 'Generating Epics...';
+    if (workflowStep === 'iteration-complete') return 'Flow Complete';
     if (workflowStep === 'stories') return 'Stories Complete';
     if (workflowStep === 'epics') return 'Epics Complete';
     if (uploadedFile) return 'BRD Uploaded';

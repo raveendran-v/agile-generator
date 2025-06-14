@@ -32,8 +32,8 @@ const Index = () => {
   const [epics, setEpics] = useState<Epic[]>([]);
   const [allStories, setAllStories] = useState<Story[]>([]);
   const [currentIterationStories, setCurrentIterationStories] = useState<Story[]>([]);
-  const [selectedEpicIds, setSelectedEpicIds] = useState<string[]>([]);
-  const [epicsWithStories, setEpicsWithStories] = useState<Set<string>>(new Set());
+  const [selectedEpicId, setSelectedEpicId] = useState<string>('');
+  const [processedEpicIds, setProcessedEpicIds] = useState<Set<string>>(new Set());
   const [isEpicsFinalized, setIsEpicsFinalized] = useState(false);
   const [isCurrentIterationFinalized, setIsCurrentIterationFinalized] = useState(false);
   const [isGeneratingEpics, setIsGeneratingEpics] = useState(false);
@@ -41,28 +41,15 @@ const Index = () => {
   const [currentWorkflowStep, setCurrentWorkflowStep] = useState<'brd' | 'epics' | 'stories' | 'iteration-complete'>('brd');
   const { toast } = useToast();
 
-  // Auto-select all available epics when they are generated or when starting a new iteration
-  useEffect(() => {
-    if (epics.length > 0 && selectedEpicIds.length === 0 && currentWorkflowStep === 'epics') {
-      const availableEpics = epics.filter(epic => !epicsWithStories.has(epic.id));
-      setSelectedEpicIds(availableEpics.map(epic => epic.id));
-    }
-  }, [epics, epicsWithStories, currentWorkflowStep]);
-
-  // Get available epics (those without stories yet)
-  const getAvailableEpics = () => {
-    return epics.filter(epic => !epicsWithStories.has(epic.id));
-  };
-
   const handleBRDSubmit = async (content: string) => {
     setBrdContent(content);
     setIsGeneratingEpics(true);
     // Reset all state for new BRD
     setEpics([]);
-    setSelectedEpicIds([]);
+    setSelectedEpicId('');
     setAllStories([]);
     setCurrentIterationStories([]);
-    setEpicsWithStories(new Set());
+    setProcessedEpicIds(new Set());
     setIsEpicsFinalized(false);
     setIsCurrentIterationFinalized(false);
     setCurrentWorkflowStep('brd');
@@ -94,10 +81,10 @@ const Index = () => {
     }
     setIsGeneratingEpics(true);
     // Reset epic-related state
-    setSelectedEpicIds([]);
+    setSelectedEpicId('');
     setAllStories([]);
     setCurrentIterationStories([]);
-    setEpicsWithStories(new Set());
+    setProcessedEpicIds(new Set());
     setIsEpicsFinalized(false);
     setIsCurrentIterationFinalized(false);
     try {
@@ -120,39 +107,38 @@ const Index = () => {
   };
 
   const handleFinalizeEpics = () => {
-    if (selectedEpicIds.length === 0) {
-      toast({
-        title: "No Epics Selected",
-        description: "Please select at least one epic before finalizing.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
     setIsEpicsFinalized(true);
-    setCurrentWorkflowStep('stories');
     toast({
       title: "Epics Finalized",
-      description: `${selectedEpicIds.length} epics are now locked. You can proceed to generate user stories.`
+      description: `${epics.length} epics are now locked. Select an epic to generate user stories.`
     });
   };
 
+  const handleSelectEpic = (epicId: string) => {
+    setSelectedEpicId(epicId);
+    setCurrentIterationStories([]);
+    setIsCurrentIterationFinalized(false);
+    setCurrentWorkflowStep('stories');
+  };
+
   const handleGenerateStories = async () => {
-    if (selectedEpicIds.length === 0) {
-        toast({ title: "No Epics Selected", description: "Please select epics to generate stories for.", variant: "destructive"});
+    if (!selectedEpicId) {
+        toast({ title: "No Epic Selected", description: "Please select an epic to generate stories for.", variant: "destructive"});
         return;
     }
     
-    const selectedEpics = epics.filter(epic => selectedEpicIds.includes(epic.id));
+    const selectedEpic = epics.find(epic => epic.id === selectedEpicId);
+    if (!selectedEpic) return;
+    
     setIsGeneratingStories(true);
     setCurrentIterationStories([]);
     
     try {
-      const generatedStories = await generateStoriesWithGroq(selectedEpics, brdContent);
+      const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
       setCurrentIterationStories(generatedStories);
       toast({
         title: "User Stories Generated",
-        description: `Generated ${generatedStories.length} user stories for ${selectedEpics.length} selected epics using Groq AI.`
+        description: `Generated ${generatedStories.length} user stories for the selected epic using Groq AI.`
       });
     } catch (error) {
       console.error("Generate Stories Error:", error);
@@ -167,19 +153,21 @@ const Index = () => {
   };
 
   const handleRegenerateStories = async (feedback: string) => {
-    if (selectedEpicIds.length === 0) {
-        toast({ title: "No Epics Selected", description: "Cannot regenerate stories without selected epics.", variant: "destructive"});
+    if (!selectedEpicId) {
+        toast({ title: "No Epic Selected", description: "Cannot regenerate stories without selected epic.", variant: "destructive"});
         return;
     }
     
-    const selectedEpics = epics.filter(epic => selectedEpicIds.includes(epic.id));
+    const selectedEpic = epics.find(epic => epic.id === selectedEpicId);
+    if (!selectedEpic) return;
+    
     setIsGeneratingStories(true);
     try {
-      const generatedStories = await generateStoriesWithGroq(selectedEpics, brdContent);
+      const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
       setCurrentIterationStories(generatedStories);
       toast({
         title: "Stories Regenerated",
-        description: `User stories have been regenerated for ${selectedEpics.length} selected epics using Groq AI.`
+        description: `User stories have been regenerated for the selected epic using Groq AI.`
       });
     } catch (error) {
       toast({
@@ -196,23 +184,23 @@ const Index = () => {
     // Add current iteration stories to all stories
     setAllStories(prev => [...prev, ...currentIterationStories]);
     
-    // Mark these epics as having stories
-    const newEpicsWithStories = new Set([...epicsWithStories, ...selectedEpicIds]);
-    setEpicsWithStories(newEpicsWithStories);
+    // Mark this epic as processed
+    const newProcessedEpicIds = new Set([...processedEpicIds, selectedEpicId]);
+    setProcessedEpicIds(newProcessedEpicIds);
     
     // Reset for next iteration
-    setSelectedEpicIds([]);
+    setSelectedEpicId('');
     setCurrentIterationStories([]);
     setIsCurrentIterationFinalized(false);
     
     // Check if there are more epics to process
-    const remainingEpics = epics.filter(epic => !newEpicsWithStories.has(epic.id));
+    const remainingEpics = epics.filter(epic => !newProcessedEpicIds.has(epic.id));
     
     if (remainingEpics.length > 0) {
       setCurrentWorkflowStep('epics');
       toast({
         title: "Stories Finalized",
-        description: `Stories finalized for this iteration. ${remainingEpics.length} epic(s) remaining. Select more epics to continue.`
+        description: `Stories finalized for this epic. ${remainingEpics.length} epic(s) remaining. Select another epic to continue.`
       });
     } else {
       setCurrentWorkflowStep('iteration-complete');
@@ -223,21 +211,25 @@ const Index = () => {
     }
   };
 
-  const handleStartNewIteration = () => {
+  const handleContinueForRemainingEpics = () => {
     setCurrentWorkflowStep('epics');
-    setIsEpicsFinalized(false);
     toast({
-      title: "Starting New Iteration",
-      description: "Select remaining epics to generate more stories."
+      title: "Continuing with Remaining Epics",
+      description: "Select another epic to generate more stories."
     });
   };
 
-  const handleCompleteProcess = () => {
+  const handleEndFlow = () => {
     setCurrentWorkflowStep('iteration-complete');
     toast({
-      title: "Process Complete",
-      description: "All user stories have been generated and finalized."
+      title: "Flow Ended",
+      description: "Epic and story generation process has been completed."
     });
+  };
+
+  // Get available epics (those not yet processed)
+  const getAvailableEpics = () => {
+    return epics.filter(epic => !processedEpicIds.has(epic.id));
   };
 
   return (
@@ -252,33 +244,34 @@ const Index = () => {
           isGeneratingStories={isGeneratingStories}
         />
         
-        {epics.length > 0 && (currentWorkflowStep === 'epics' || currentWorkflowStep === 'stories') && (
+        {epics.length > 0 && (currentWorkflowStep === 'epics') && (
           <EpicGeneration
             epics={getAvailableEpics()}
             allEpics={epics}
-            epicsWithStories={epicsWithStories}
+            epicsWithStories={processedEpicIds}
             isFinalized={isEpicsFinalized}
             isGenerating={isGeneratingEpics}
-            selectedEpicIds={selectedEpicIds}
-            onEpicSelectionChange={setSelectedEpicIds}
+            selectedEpicIds={selectedEpicId ? [selectedEpicId] : []}
+            onEpicSelectionChange={(epicIds) => setSelectedEpicId(epicIds[0] || '')}
             onRegenerate={handleRegenerateEpics}
             onFinalize={handleFinalizeEpics}
+            onSelectEpic={handleSelectEpic}
           />
         )}
         
-        {currentWorkflowStep === 'stories' && selectedEpicIds.length > 0 && (
+        {currentWorkflowStep === 'stories' && selectedEpicId && (
           <StoryGeneration
             stories={currentIterationStories}
             allStories={allStories}
-            epics={epics.filter(epic => selectedEpicIds.includes(epic.id))}
+            epics={epics.filter(epic => epic.id === selectedEpicId)}
             isFinalized={isCurrentIterationFinalized}
             isGenerating={isGeneratingStories}
-            hasRemainingEpics={getAvailableEpics().length > selectedEpicIds.length}
+            hasRemainingEpics={getAvailableEpics().length > 0}
             onGenerate={handleGenerateStories}
             onRegenerate={handleRegenerateStories}
             onFinalize={handleFinalizeCurrentIteration}
-            onStartNewIteration={handleStartNewIteration}
-            onCompleteProcess={handleCompleteProcess}
+            onStartNewIteration={handleContinueForRemainingEpics}
+            onCompleteProcess={handleEndFlow}
           />
         )}
         
