@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -177,7 +178,7 @@ const BRDInput: React.FC<BRDInputProps> = ({
         <div className="relative space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl bg-gradient-primary">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-primary to-secondary">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
@@ -277,7 +278,7 @@ const BRDInput: React.FC<BRDInputProps> = ({
                         </div>
                       ) : (
                         <div className="space-y-3 text-center">
-                          <div className="p-3 rounded-full bg-gradient-primary mx-auto w-fit">
+                          <div className="p-3 rounded-full bg-gradient-to-r from-primary to-secondary mx-auto w-fit">
                             <Upload className="w-6 h-6 text-white" />
                           </div>
                           <div>
@@ -325,7 +326,10 @@ const BRDInput: React.FC<BRDInputProps> = ({
                 <Button
                   onClick={handleSubmit}
                   disabled={!content.trim() || isUploading}
-                  className="w-full h-12 bg-gradient-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 text-white font-semibold rounded-xl"
+                  className="w-full h-12 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 hover:shadow-lg hover:scale-[1.02] transition-all duration-200 text-white font-semibold rounded-xl border-0"
+                  style={{
+                    background: 'linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%)'
+                  }}
                 >
                   <Sparkles className="w-4 h-4 mr-2" />
                   Generate Epics
