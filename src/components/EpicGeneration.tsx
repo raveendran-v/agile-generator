@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { FileDown, MessageSquare, RefreshCw, CheckCircle, Info, Play } from 'lucide-react';
 import { Epic } from '../pages/Index';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
-import WorkflowProgress from './WorkflowProgress';
 
 interface EpicGenerationProps {
   epics: Epic[];
@@ -111,14 +110,6 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
   const totalCount = allEpics.length;
   const availableCount = epics.length;
 
-  // Calculate stories per epic
-  const storiesPerEpic = allStories.reduce((acc, story) => {
-    acc[story.epicId] = (acc[story.epicId] || 0) + 1;
-    return acc;
-  }, {} as { [epicId: string]: number });
-
-  const totalStories = allStories.length;
-
   return (
     <Card className="w-full">
       <CardHeader>
@@ -134,17 +125,6 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Modern Progress Component */}
-        {totalCount > 0 && (
-          <WorkflowProgress 
-            totalEpics={totalCount}
-            completedEpics={completedCount}
-            availableEpics={availableCount}
-            totalStories={totalStories}
-            storiesPerEpic={storiesPerEpic}
-          />
-        )}
-
         {/* Epic List */}
         <div className="space-y-4">
           {availableCount === 0 ? (
