@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
@@ -51,7 +50,13 @@ serve(async (req) => {
       console.log('Generating epics...');
       
       const systemPrompt = `You are an expert project manager. Based on the following Business Requirements Document (BRD), generate a list of high-level epics.
-Each epic MUST have an 'id' (a unique string, e.g., "epic_1", "epic_2"), 'epic_name' (a concise title), and 'epic_description' (a short explanation).
+
+**CRITICAL REQUIREMENTS:**
+- Generate a MINIMUM of 10 epics - this is mandatory
+- If the BRD content suggests fewer epics, expand and break down the requirements to create at least 10 distinct epics
+- Each epic MUST have an 'id' (a unique string, e.g., "epic_1", "epic_2"), 'epic_name' (a concise title), and 'epic_description' (a short explanation)
+- Ensure epics cover all aspects of the project including: core functionality, user management, data management, security, reporting, integration, testing, deployment, maintenance, and user experience
+
 Return the output ONLY as a valid JSON array of objects. Each object in the array should conform to this structure:
 { "id": "unique_id_string", "epic_name": "Epic Name", "epic_description": "Description of the epic." }
 Do NOT include any explanatory text, markdown formatting, or anything else before or after the JSON array.
@@ -61,7 +66,7 @@ The 'id' for each epic must be unique.`;
 ---
 ${content}
 ---
-Generate epics based on the BRD content above. Ensure the output is ONLY a valid JSON array.`;
+Generate a minimum of 10 epics based on the BRD content above. Break down the requirements comprehensively to ensure you create at least 10 distinct, meaningful epics. Ensure the output is ONLY a valid JSON array.`;
 
       console.log('Making request to Groq API for epics...');
       
@@ -102,6 +107,12 @@ Generate epics based on the BRD content above. Ensure the output is ONLY a valid
       try {
         const cleanedResponse = responseContent.trim().match(/(\[.*\]|\{.*\})/s)?.[0] || responseContent;
         const generatedEpics = JSON.parse(cleanedResponse) as Epic[];
+        
+        // Validate minimum epic count
+        if (generatedEpics.length < 10) {
+          console.warn(`Only ${generatedEpics.length} epics generated, minimum is 10`);
+          throw new Error(`Insufficient epics generated. Got ${generatedEpics.length}, minimum required is 10. Please regenerate.`);
+        }
         
         console.log('Successfully parsed epics:', generatedEpics.length);
 
