@@ -1,9 +1,10 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileDown, MessageSquare, RefreshCw, CheckCircle, Play, StopCircle, ArrowRight } from 'lucide-react';
+import { FileDown, MessageSquare, RefreshCw, CheckCircle, Play, RotateCcw, ArrowRight } from 'lucide-react';
 import { Story, Epic } from '../pages/Index';
 
 interface StoryGenerationProps {
@@ -13,12 +14,9 @@ interface StoryGenerationProps {
   isFinalized: boolean;
   isGenerating: boolean;
   hasRemainingEpics: boolean;
-  showExportAndEnd?: boolean;
   onGenerate: () => void;
   onRegenerate: (feedback: string) => void;
   onFinalize: () => void;
-  onExport?: () => void;
-  onEndFlow?: () => void;
   onStartNewIteration: () => void;
   onCompleteProcess: () => void;
 }
@@ -30,12 +28,9 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
   isFinalized,
   isGenerating,
   hasRemainingEpics,
-  showExportAndEnd = false,
   onGenerate,
   onRegenerate,
   onFinalize,
-  onExport,
-  onEndFlow,
   onStartNewIteration,
   onCompleteProcess
 }) => {
@@ -292,35 +287,41 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
           </div>
         )}
 
-        {/* Export and End Flow Buttons (shown after finalization) */}
-        {showExportAndEnd && onExport && onEndFlow && (
-          <div className="flex flex-wrap gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-            <div className="w-full mb-2">
-              <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                Iteration Complete! Choose your next action:
-              </p>
-            </div>
-            <Button
-              onClick={onExport}
-              className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
-            >
-              <FileDown className="w-4 h-4" />
-              <span>Export & Continue</span>
-            </Button>
-            
-            <Button
-              onClick={onEndFlow}
-              variant="destructive"
-              className="flex items-center space-x-2"
-            >
-              <StopCircle className="w-4 h-4" />
-              <span>End the Flow</span>
-            </Button>
+        {/* Iteration Complete Action Buttons */}
+        {isFinalized && !isShowingAllStories && (
+          <div className="flex flex-wrap gap-3">
+            {hasRemainingEpics ? (
+              <>
+                <Button
+                  onClick={onStartNewIteration}
+                  className="bg-amber-800 hover:bg-amber-700 flex items-center space-x-2"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                  <span>Continue with Remaining Epics</span>
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={onCompleteProcess}
+                  className="flex items-center space-x-2"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  <span>Complete Process</span>
+                </Button>
+              </>
+            ) : (
+              <Button
+                onClick={onCompleteProcess}
+                className="bg-green-700 hover:bg-green-600 flex items-center space-x-2"
+              >
+                <CheckCircle className="w-4 h-4" />
+                <span>Complete Process</span>
+              </Button>
+            )}
           </div>
         )}
 
-        {/* Final Export Button (for completed process) */}
-        {(isFinalized || isShowingAllStories) && !showExportAndEnd && (
+        {/* Export Button */}
+        {(isFinalized || isShowingAllStories) && (
           <Button
             onClick={handleExport}
             className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"

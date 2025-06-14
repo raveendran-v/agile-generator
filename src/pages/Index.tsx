@@ -39,7 +39,6 @@ const Index = () => {
   const [isGeneratingEpics, setIsGeneratingEpics] = useState(false);
   const [isGeneratingStories, setIsGeneratingStories] = useState(false);
   const [currentWorkflowStep, setCurrentWorkflowStep] = useState<'brd' | 'epics' | 'stories' | 'iteration-complete'>('brd');
-  const [showExportAndEnd, setShowExportAndEnd] = useState(false);
   const { toast } = useToast();
 
   // Auto-select all available epics when they are generated or when starting a new iteration
@@ -66,7 +65,6 @@ const Index = () => {
     setEpicsWithStories(new Set());
     setIsEpicsFinalized(false);
     setIsCurrentIterationFinalized(false);
-    setShowExportAndEnd(false);
     setCurrentWorkflowStep('brd');
     
     try {
@@ -102,7 +100,6 @@ const Index = () => {
     setEpicsWithStories(new Set());
     setIsEpicsFinalized(false);
     setIsCurrentIterationFinalized(false);
-    setShowExportAndEnd(false);
     try {
       const generatedEpics = await generateEpicsWithGroq(brdContent);
       setEpics(generatedEpics);
@@ -203,61 +200,27 @@ const Index = () => {
     const newEpicsWithStories = new Set([...epicsWithStories, ...selectedEpicIds]);
     setEpicsWithStories(newEpicsWithStories);
     
-    // Show export and end flow buttons
-    setShowExportAndEnd(true);
-    setIsCurrentIterationFinalized(true);
+    // Reset for next iteration
+    setSelectedEpicIds([]);
+    setCurrentIterationStories([]);
+    setIsCurrentIterationFinalized(false);
     
-    toast({
-      title: "Stories Finalized",
-      description: "Current iteration stories have been finalized. You can export or continue with remaining epics."
-    });
-  };
-
-  const handleExportStories = () => {
-    const element = document.createElement('a');
-    const file = new Blob([JSON.stringify(allStories, null, 2)], { type: 'application/json' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'user-stories.json';
-    document.body.appendChild(element);
-    element.click();
-    document.body.removeChild(element);
-    
-    toast({
-      title: "Stories Exported",
-      description: "User stories have been exported successfully."
-    });
-    
-    // After export, check if there are remaining epics and reset for next iteration
-    const remainingEpics = epics.filter(epic => !epicsWithStories.has(epic.id));
+    // Check if there are more epics to process
+    const remainingEpics = epics.filter(epic => !newEpicsWithStories.has(epic.id));
     
     if (remainingEpics.length > 0) {
-      // Reset for next iteration
-      setSelectedEpicIds([]);
-      setCurrentIterationStories([]);
-      setIsEpicsFinalized(false);
-      setIsCurrentIterationFinalized(false);
-      setShowExportAndEnd(false);
       setCurrentWorkflowStep('epics');
-      
       toast({
-        title: "Ready for Next Iteration",
-        description: `${remainingEpics.length} epic(s) remaining. Select epics for the next iteration.`
+        title: "Stories Finalized",
+        description: `Stories finalized for this iteration. ${remainingEpics.length} epic(s) remaining. Select more epics to continue.`
       });
     } else {
       setCurrentWorkflowStep('iteration-complete');
       toast({
-        title: "All Epics Complete",
-        description: "All epics now have user stories generated!"
+        title: "All Stories Complete",
+        description: "All epics now have user stories generated. Process complete!"
       });
     }
-  };
-
-  const handleEndFlow = () => {
-    setCurrentWorkflowStep('iteration-complete');
-    toast({
-      title: "Flow Ended",
-      description: "Story generation flow has been completed."
-    });
   };
 
   const handleStartNewIteration = () => {
@@ -311,12 +274,9 @@ const Index = () => {
             isFinalized={isCurrentIterationFinalized}
             isGenerating={isGeneratingStories}
             hasRemainingEpics={getAvailableEpics().length > selectedEpicIds.length}
-            showExportAndEnd={showExportAndEnd}
             onGenerate={handleGenerateStories}
             onRegenerate={handleRegenerateStories}
             onFinalize={handleFinalizeCurrentIteration}
-            onExport={handleExportStories}
-            onEndFlow={handleEndFlow}
             onStartNewIteration={handleStartNewIteration}
             onCompleteProcess={handleCompleteProcess}
           />
@@ -330,12 +290,9 @@ const Index = () => {
             isFinalized={true}
             isGenerating={false}
             hasRemainingEpics={false}
-            showExportAndEnd={false}
             onGenerate={() => {}}
             onRegenerate={() => {}}
             onFinalize={() => {}}
-            onExport={() => {}}
-            onEndFlow={() => {}}
             onStartNewIteration={() => {}}
             onCompleteProcess={() => {}}
           />
