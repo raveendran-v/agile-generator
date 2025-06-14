@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { FileDown, MessageSquare, RefreshCw, CheckCircle, Info, Play } from 'lucide-react';
 import { Epic } from '../pages/Index';
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
+import WorkflowProgress from './WorkflowProgress';
 
 interface EpicGenerationProps {
   epics: Epic[];
@@ -122,28 +123,13 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Progress Information */}
+        {/* Modern Progress Component */}
         {totalCount > 0 && (
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-            <div className="flex items-center space-x-2 mb-2">
-              <Info className="w-4 h-4 text-blue-600" />
-              <span className="font-medium text-blue-800 dark:text-blue-200">Progress Overview</span>
-            </div>
-            <div className="grid grid-cols-3 gap-4 text-sm">
-              <div className="text-center">
-                <div className="font-semibold text-green-600">{completedCount}</div>
-                <div className="text-gray-600 dark:text-gray-400">Completed</div>
-              </div>
-              <div className="text-center">
-                <div className="font-semibold text-orange-600">{availableCount}</div>
-                <div className="text-gray-600 dark:text-gray-400">Available</div>
-              </div>
-              <div className="text-center">
-                <div className="font-semibold text-blue-600">{totalCount}</div>
-                <div className="text-gray-600 dark:text-gray-400">Total</div>
-              </div>
-            </div>
-          </div>
+          <WorkflowProgress 
+            totalEpics={totalCount}
+            completedEpics={completedCount}
+            availableEpics={availableCount}
+          />
         )}
 
         {/* Epic List */}
