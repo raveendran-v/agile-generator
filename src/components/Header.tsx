@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/theme-provider';
 
@@ -14,9 +14,10 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-stone-200 dark:border-stone-800 bg-stone-50/95 dark:bg-stone-900/95 backdrop-blur supports-[backdrop-filter]:bg-stone-50/60 dark:supports-[backdrop-filter]:bg-stone-900/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <Zap className="h-7 w-7 text-primary" />
           <h1 className="text-2xl font-serif font-bold text-stone-900 dark:text-stone-100">
-            Automatic Epics and Stories Generator
+            AgileStory AI
           </h1>
         </div>
         

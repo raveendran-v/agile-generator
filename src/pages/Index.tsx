@@ -1,10 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import BRDInput from '../components/BRDInput';
 import EpicGeneration from '../components/EpicGeneration';
 import StoryGeneration from '../components/StoryGeneration';
 import Footer from '../components/Footer';
 import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { generateEpicsWithGroq, generateStoriesWithGroq } from '@/lib/groqService';
+import { AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 
 export interface Epic {
   id: string;
@@ -33,7 +40,27 @@ const Index = () => {
   const [isStoriesFinalized, setIsStoriesFinalized] = useState(false);
   const [isGeneratingEpics, setIsGeneratingEpics] = useState(false);
   const [isGeneratingStories, setIsGeneratingStories] = useState(false);
+  const [groqApiKey, setGroqApiKey] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    const storedApiKey = localStorage.getItem('groqApiKey');
+    if (storedApiKey) {
+      setGroqApiKey(storedApiKey);
+    }
+  }, []);
+
+  const handleApiKeyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setGroqApiKey(e.target.value);
+  };
+
+  const handleSaveApiKey = () => {
+    localStorage.setItem('groqApiKey', groqApiKey);
+    toast({
+      title: 'API Key Saved',
+      description: 'Your Groq API key has been saved locally for this session.',
+    });
+  };
 
   // Get current workflow step
   const getCurrentWorkflowStep = () => {
@@ -44,60 +71,30 @@ const Index = () => {
   };
 
   const handleBRDSubmit = async (content: string) => {
+    if (!groqApiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your Groq API key to generate epics.",
+        variant: "destructive",
+      });
+      return;
+    }
     setBrdContent(content);
     setIsGeneratingEpics(true);
+    setEpics([]); // Clear previous epics
     
     try {
-      // Simulate API call to generate epics
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
-      const mockEpics: Epic[] = [
-        {
-          id: '1',
-          epic_name: 'User Authentication and Authorization',
-          epic_description: 'Implement secure user registration, login, and role-based access control to ensure only authorized users can access system features.'
-        },
-        {
-          id: '2',
-          epic_name: 'Document Management System',
-          epic_description: 'Create a comprehensive document upload, storage, and retrieval system supporting multiple file formats with version control.'
-        },
-        {
-          id: '3',
-          epic_name: 'AI-Powered Content Generation',
-          epic_description: 'Integrate LLM capabilities to automatically generate epics and user stories from business requirements documents.'
-        },
-        {
-          id: '4',
-          epic_name: 'Project Dashboard and Analytics',
-          epic_description: 'Build an intuitive dashboard displaying project metrics, progress tracking, and comprehensive analytics for stakeholders.'
-        },
-        {
-          id: '5',
-          epic_name: 'Export and Reporting Features',
-          epic_description: 'Develop export functionality for generating professional reports and documents in various formats including DOCX and PDF.'
-        },
-        {
-          id: '6',
-          epic_name: 'Collaboration and Feedback System',
-          epic_description: 'Enable team collaboration through commenting, feedback collection, and iterative refinement of generated content.'
-        },
-        {
-          id: '7',
-          epic_name: 'System Administration and Configuration',
-          epic_description: 'Provide administrative tools for system configuration, user management, and platform customization capabilities.'
-        }
-      ];
-      
-      setEpics(mockEpics);
+      const generatedEpics = await generateEpicsWithGroq(content, { apiKey: groqApiKey });
+      setEpics(generatedEpics);
       toast({
         title: "Epics Generated Successfully",
-        description: `Generated ${mockEpics.length} epics from your BRD.`
+        description: `Generated ${generatedEpics.length} epics using Groq AI.`
       });
     } catch (error) {
+      console.error("BRD Submit Error:", error);
       toast({
-        title: "Error",
-        description: "Failed to generate epics. Please try again.",
+        title: "Error Generating Epics",
+        description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
         variant: "destructive"
       });
     } finally {
@@ -106,18 +103,27 @@ const Index = () => {
   };
 
   const handleRegenerateEpics = async (feedback: string) => {
+    // Simple regeneration for now, feedback string is not used yet.
+    if (!brdContent) {
+        toast({ title: "Error", description: "BRD content is missing.", variant: "destructive"});
+        return;
+    }
+    if (!groqApiKey) {
+      toast({ title: "API Key Required", description: "Groq API key needed.", variant: "destructive"});
+      return;
+    }
     setIsGeneratingEpics(true);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const generatedEpics = await generateEpicsWithGroq(brdContent, { apiKey: groqApiKey });
+      setEpics(generatedEpics);
       toast({
         title: "Epics Regenerated",
-        description: "Your feedback has been incorporated into the updated epics."
+        description: "Epics have been regenerated using Groq AI."
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to regenerate epics. Please try again.",
+        title: "Error Regenerating Epics",
+        description: error instanceof Error ? error.message : "Failed to regenerate epics. Check console.",
         variant: "destructive"
       });
     } finally {
@@ -134,84 +140,33 @@ const Index = () => {
   };
 
   const handleGenerateStories = async () => {
+    if (!groqApiKey) {
+      toast({
+        title: "API Key Required",
+        description: "Please enter your Groq API key to generate stories.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (epics.length === 0) {
+        toast({ title: "No Epics", description: "Cannot generate stories without epics.", variant: "destructive"});
+        return;
+    }
     setIsGeneratingStories(true);
+    setStories([]); // Clear previous stories
     
     try {
-      await new Promise(resolve => setTimeout(resolve, 4000));
-      
-      const mockStories: Story[] = [
-        {
-          id: '1',
-          epicId: '1',
-          story_name: 'As a new user, I want to register an account so that I can access the platform features',
-          description: 'Users need to create accounts with email verification to access the system securely.',
-          label: 'Authentication',
-          status: 'To Do',
-          acceptance_criteria: [
-            'User can register with email and password',
-            'Email verification is required before account activation',
-            'Password meets security requirements',
-            'Registration form validates all required fields'
-          ],
-          nfrs: [
-            'Registration process completes within 3 seconds',
-            'Password encryption using industry standards',
-            'GDPR compliant data collection',
-            'Mobile responsive registration form'
-          ],
-          dod: [
-            'Code reviewed and approved',
-            'Unit tests written and passing',
-            'Integration tests completed',
-            'Security audit passed'
-          ],
-          dor: [
-            'Acceptance criteria clearly defined',
-            'UI mockups approved',
-            'Dependencies identified'
-          ]
-        },
-        {
-          id: '2',
-          epicId: '2',
-          story_name: 'As a user, I want to upload documents in multiple formats so that I can process different types of BRDs',
-          description: 'Enable users to upload PDF, DOCX, and TXT files with proper validation and processing.',
-          label: 'Document Management',
-          status: 'To Do',
-          acceptance_criteria: [
-            'Support for PDF, DOCX, and TXT file formats',
-            'File size limit of 10MB enforced',
-            'Upload progress indicator displayed',
-            'Error handling for unsupported formats'
-          ],
-          nfrs: [
-            'File upload completes within 10 seconds for 10MB files',
-            'Virus scanning for uploaded files',
-            'Secure file storage with encryption',
-            'Cross-browser compatibility'
-          ],
-          dod: [
-            'File validation logic implemented',
-            'Error handling tested',
-            'Performance benchmarks met',
-            'Documentation updated'
-          ],
-          dor: [
-            'File format specifications defined',
-            'Storage requirements clarified'
-          ]
-        }
-      ];
-      
-      setStories(mockStories);
+      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: groqApiKey });
+      setStories(generatedStories);
       toast({
         title: "User Stories Generated",
-        description: `Generated ${mockStories.length} user stories from your epics.`
+        description: `Generated ${generatedStories.length} user stories using Groq AI.`
       });
     } catch (error) {
+      console.error("Generate Stories Error:", error);
       toast({
-        title: "Error",
-        description: "Failed to generate user stories. Please try again.",
+        title: "Error Generating Stories",
+        description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
         variant: "destructive"
       });
     } finally {
@@ -220,18 +175,27 @@ const Index = () => {
   };
 
   const handleRegenerateStories = async (feedback: string) => {
+    // Simple regeneration for now, feedback string is not used yet.
+     if (!groqApiKey) {
+      toast({ title: "API Key Required", description: "Groq API key needed.", variant: "destructive"});
+      return;
+    }
+    if (epics.length === 0) {
+        toast({ title: "No Epics", description: "Cannot regenerate stories without epics.", variant: "destructive"});
+        return;
+    }
     setIsGeneratingStories(true);
-    
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: groqApiKey });
+      setStories(generatedStories);
       toast({
         title: "Stories Regenerated",
-        description: "Your feedback has been incorporated into the updated user stories."
+        description: "User stories have been regenerated using Groq AI."
       });
     } catch (error) {
       toast({
-        title: "Error",
-        description: "Failed to regenerate stories. Please try again.",
+        title: "Error Regenerating Stories",
+        description: error instanceof Error ? error.message : "Failed to regenerate stories. Check console.",
         variant: "destructive"
       });
     } finally {
@@ -252,6 +216,28 @@ const Index = () => {
       <Header />
       
       <main className="container mx-auto px-6 py-12 space-y-12">
+        <div className="mb-8 p-6 bg-stone-100 dark:bg-stone-800 rounded-lg shadow">
+          <Label htmlFor="groqApiKey" className="text-lg font-semibold text-stone-700 dark:text-stone-300">Groq API Key</Label>
+          <div className="flex items-center space-x-2 mt-2">
+            <Input
+              id="groqApiKey"
+              type="password"
+              placeholder="Enter your Groq API key"
+              value={groqApiKey}
+              onChange={handleApiKeyChange}
+              className="flex-grow"
+            />
+            <Button onClick={handleSaveApiKey} variant="secondary">Save Key</Button>
+          </div>
+          <Alert variant="default" className="mt-4 bg-amber-50 border-amber-300 dark:bg-amber-900/30 dark:border-amber-700">
+            <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+            <AlertTitle className="text-amber-700 dark:text-amber-300">API Key Security</AlertTitle>
+            <AlertDescription className="text-amber-600 dark:text-amber-400">
+              Your API key is stored in your browser's local storage for convenience during this session. For production applications, never expose API keys on the client-side. Use a secure backend proxy or serverless functions.
+            </AlertDescription>
+          </Alert>
+        </div>
+
         <BRDInput 
           onSubmit={handleBRDSubmit}
           workflowStep={getCurrentWorkflowStep()}
@@ -269,10 +255,10 @@ const Index = () => {
           />
         )}
         
-        {isEpicsFinalized && (
+        {isEpicsFinalized && epics.length > 0 && ( // Added epics.length > 0 check
           <StoryGeneration
             stories={stories}
-            epics={epics}
+            epics={epics} // Pass epics to StoryGeneration
             isFinalized={isStoriesFinalized}
             isGenerating={isGeneratingStories}
             onGenerate={handleGenerateStories}
