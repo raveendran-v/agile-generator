@@ -16,11 +16,11 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-stone-200 dark:border-stone-800 bg-stone-50/95 dark:bg-stone-900/95 backdrop-blur supports-[backdrop-filter]:bg-stone-50/60 dark:supports-[backdrop-filter]:bg-stone-900/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Zap className="h-7 w-7 text-primary" />
-          <h1 className="text-2xl font-serif font-bold text-stone-900 dark:text-stone-100">
+          <h1 className="text-2xl font-serif font-bold text-foreground">
             Epics and Story Generator
           </h1>
         </div>
@@ -30,7 +30,7 @@ const Header = () => {
             variant="outline"
             size="sm"
             onClick={handleStartOver}
-            className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 flex items-center space-x-2"
+            className="hover-enhanced flex items-center space-x-2"
           >
             <RotateCcw className="h-4 w-4" />
             <span>Start Over</span>
@@ -40,7 +40,7 @@ const Header = () => {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="text-stone-600 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100"
+            className="hover-enhanced relative"
           >
             <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

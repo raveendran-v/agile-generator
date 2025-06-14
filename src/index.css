@@ -5,7 +5,7 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Updated design system with maroon and blue color palette to match brand */
+/* Enhanced design system with improved dark mode */
 
 @layer base {
   :root {
@@ -50,42 +50,42 @@
   }
 
   .dark {
-    --background: 0 0% 8%; /* Dark background */
-    --foreground: 0 0% 95%; /* Light text */
+    --background: 222 84% 4.9%; /* Deep rich dark background */
+    --foreground: 210 40% 98%; /* Bright white text */
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 95%;
+    --card: 222 84% 5.5%; /* Slightly lighter than background */
+    --card-foreground: 210 40% 95%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 222 84% 5.5%;
+    --popover-foreground: 210 40% 95%;
 
-    --primary: 0 60% 45%; /* Lighter maroon for dark mode */
-    --primary-foreground: 0 0% 98%;
+    --primary: 0 65% 50%; /* Vibrant maroon for dark mode */
+    --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 100% 60%; /* Brighter blue for dark mode */
-    --secondary-foreground: 0 0% 8%;
+    --secondary: 210 40% 12%; /* Muted dark blue background */
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 217 32% 10%; /* Subtle background for sections */
+    --muted-foreground: 215 20% 65%; /* Better contrast muted text */
 
-    --accent: 210 100% 60%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 210 100% 65%; /* Bright blue accent for dark mode */
+    --accent-foreground: 222 84% 4.9%;
 
-    --destructive: 0 62.8% 50%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 0 0% 18%;
-    --input: 0 0% 18%;
-    --ring: 0 60% 45%;
+    --border: 217 32% 17%; /* Subtle borders */
+    --input: 217 32% 12%; /* Input backgrounds */
+    --ring: 0 65% 50%;
 
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 60% 45%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 18%;
-    --sidebar-ring: 0 60% 45%;
+    --sidebar-background: 222 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 0 65% 50%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 217 32% 10%;
+    --sidebar-accent-foreground: 210 40% 95%;
+    --sidebar-border: 217 32% 17%;
+    --sidebar-ring: 0 65% 50%;
   }
 }
 
@@ -98,14 +98,32 @@
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
     line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   .font-serif {
     font-family: 'Playfair Display', serif;
   }
+
+  /* Improved scrollbar for dark mode */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground;
+  }
 }
 
-/* Custom gradient backgrounds */
+/* Enhanced gradient backgrounds for dark mode */
 @layer utilities {
   .gradient-primary {
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
@@ -117,11 +135,53 @@
   
   .glass-effect {
     backdrop-filter: blur(12px);
-    background: rgba(255, 255, 255, 0.8);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    @apply bg-card/80 border-border/20;
+  }
+  
+  .dark .glass-effect {
+    backdrop-filter: blur(12px);
+    @apply bg-card/60 border-border/30;
   }
   
   .shadow-modern {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dark .shadow-modern {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+
+  /* Enhanced text colors for better readability */
+  .text-enhanced {
+    @apply text-foreground/90;
+  }
+
+  .text-enhanced-muted {
+    @apply text-muted-foreground/80;
+  }
+
+  /* Improved hover effects */
+  .hover-enhanced {
+    @apply hover:bg-accent/10 hover:text-accent-foreground transition-all duration-200;
+  }
+
+  .dark .hover-enhanced {
+    @apply hover:bg-accent/20;
+  }
+}
+
+/* Enhanced focus states for better accessibility */
+@layer components {
+  .focus-enhanced {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+  }
+
+  /* Better button styling in dark mode */
+  .btn-dark-enhanced {
+    @apply shadow-lg hover:shadow-xl transition-all duration-200;
+  }
+
+  .dark .btn-dark-enhanced {
+    @apply shadow-2xl hover:shadow-3xl;
   }
 }

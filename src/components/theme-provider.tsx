@@ -43,7 +43,17 @@ export function ThemeProvider({
         : "light"
 
       root.classList.add(systemTheme)
-      return
+      
+      // Enhanced system theme detection with listener
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+      const handleChange = () => {
+        const newSystemTheme = mediaQuery.matches ? "dark" : "light"
+        root.classList.remove("light", "dark")
+        root.classList.add(newSystemTheme)
+      }
+      
+      mediaQuery.addEventListener('change', handleChange)
+      return () => mediaQuery.removeEventListener('change', handleChange)
     }
 
     root.classList.add(theme)
