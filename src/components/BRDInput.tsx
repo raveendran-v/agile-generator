@@ -22,6 +22,7 @@ const BRDInput: React.FC<BRDInputProps> = ({
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [showGenerateButton, setShowGenerateButton] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -319,15 +320,30 @@ const BRDInput: React.FC<BRDInputProps> = ({
                 )}
               </div>
 
-              {/* Modern Submit Button */}
-              <Button
-                onClick={handleSubmit}
-                disabled={!content.trim() || isUploading}
-                className="w-full h-12 bg-gradient-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 text-white font-semibold rounded-xl"
+              {/* Modern Submit Button with Hover Effect */}
+              <div 
+                className="relative"
+                onMouseEnter={() => setShowGenerateButton(true)}
+                onMouseLeave={() => setShowGenerateButton(false)}
               >
-                <Sparkles className="w-4 h-4 mr-2" />
-                Generate Epics & Stories
-              </Button>
+                <div className={`transition-all duration-300 ${showGenerateButton ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2 pointer-events-none'}`}>
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={!content.trim() || isUploading}
+                    className="w-full h-12 bg-gradient-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 text-white font-semibold rounded-xl"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate Epics & Stories
+                  </Button>
+                </div>
+                
+                {/* Hover Area Indicator */}
+                {!showGenerateButton && (
+                  <div className="w-full h-12 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl flex items-center justify-center text-gray-500 dark:text-gray-400 text-sm">
+                    Move cursor here to reveal Generate button
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>
