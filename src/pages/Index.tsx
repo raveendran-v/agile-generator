@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import BRDInput from '../components/BRDInput';
@@ -26,8 +27,6 @@ export interface Story {
   dor: string[];
 }
 
-const USER_PROVIDED_GROQ_API_KEY = "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET";
-
 const Index = () => {
   const [brdContent, setBrdContent] = useState('');
   const [epics, setEpics] = useState<Epic[]>([]);
@@ -47,20 +46,12 @@ const Index = () => {
   };
 
   const handleBRDSubmit = async (content: string) => {
-    if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
-      toast({
-        title: "API Key Not Set",
-        description: "The Groq API key needs to be configured. Please provide it in the chat.",
-        variant: "destructive",
-      });
-      return;
-    }
     setBrdContent(content);
     setIsGeneratingEpics(true);
     setEpics([]); // Clear previous epics
     
     try {
-      const generatedEpics = await generateEpicsWithGroq(content, { apiKey: USER_PROVIDED_GROQ_API_KEY });
+      const generatedEpics = await generateEpicsWithGroq(content);
       setEpics(generatedEpics);
       toast({
         title: "Epics Generated Successfully",
@@ -79,18 +70,13 @@ const Index = () => {
   };
 
   const handleRegenerateEpics = async (feedback: string) => {
-    // Simple regeneration for now, feedback string is not used yet.
     if (!brdContent) {
         toast({ title: "Error", description: "BRD content is missing.", variant: "destructive"});
         return;
     }
-    if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
-      toast({ title: "API Key Not Set", description: "Groq API key needed. Please provide it in the chat.", variant: "destructive"});
-      return;
-    }
     setIsGeneratingEpics(true);
     try {
-      const generatedEpics = await generateEpicsWithGroq(brdContent, { apiKey: USER_PROVIDED_GROQ_API_KEY });
+      const generatedEpics = await generateEpicsWithGroq(brdContent);
       setEpics(generatedEpics);
       toast({
         title: "Epics Regenerated",
@@ -116,14 +102,6 @@ const Index = () => {
   };
 
   const handleGenerateStories = async () => {
-    if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
-      toast({
-        title: "API Key Not Set",
-        description: "The Groq API key needs to be configured. Please provide it in the chat.",
-        variant: "destructive",
-      });
-      return;
-    }
     if (epics.length === 0) {
         toast({ title: "No Epics", description: "Cannot generate stories without epics.", variant: "destructive"});
         return;
@@ -132,7 +110,7 @@ const Index = () => {
     setStories([]); // Clear previous stories
     
     try {
-      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: USER_PROVIDED_GROQ_API_KEY });
+      const generatedStories = await generateStoriesWithGroq(epics, brdContent);
       setStories(generatedStories);
       toast({
         title: "User Stories Generated",
@@ -151,18 +129,13 @@ const Index = () => {
   };
 
   const handleRegenerateStories = async (feedback: string) => {
-    // Simple regeneration for now, feedback string is not used yet.
-     if (!USER_PROVIDED_GROQ_API_KEY || USER_PROVIDED_GROQ_API_KEY === "YOUR_GROQ_API_KEY_NEEDS_TO_BE_SET") {
-      toast({ title: "API Key Not Set", description: "Groq API key needed. Please provide it in the chat.", variant: "destructive"});
-      return;
-    }
     if (epics.length === 0) {
         toast({ title: "No Epics", description: "Cannot regenerate stories without epics.", variant: "destructive"});
         return;
     }
     setIsGeneratingStories(true);
     try {
-      const generatedStories = await generateStoriesWithGroq(epics, brdContent, { apiKey: USER_PROVIDED_GROQ_API_KEY });
+      const generatedStories = await generateStoriesWithGroq(epics, brdContent);
       setStories(generatedStories);
       toast({
         title: "Stories Regenerated",
