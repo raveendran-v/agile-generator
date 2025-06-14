@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { FileDown, MessageSquare, RefreshCw, CheckCircle } from 'lucide-react';
 import { Epic } from '../pages/Index';
 
@@ -10,6 +11,8 @@ interface EpicGenerationProps {
   epics: Epic[];
   isFinalized: boolean;
   isGenerating: boolean;
+  selectedEpicIds: string[];
+  onEpicSelectionChange: (epicIds: string[]) => void;
   onRegenerate: (feedback: string) => void;
   onFinalize: () => void;
 }
@@ -18,6 +21,8 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
   epics,
   isFinalized,
   isGenerating,
+  selectedEpicIds,
+  onEpicSelectionChange,
   onRegenerate,
   onFinalize
 }) => {
@@ -42,6 +47,22 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
     document.body.removeChild(element);
   };
 
+  const handleEpicToggle = (epicId: string, checked: boolean) => {
+    if (checked) {
+      onEpicSelectionChange([...selectedEpicIds, epicId]);
+    } else {
+      onEpicSelectionChange(selectedEpicIds.filter(id => id !== epicId));
+    }
+  };
+
+  const handleSelectAll = () => {
+    if (selectedEpicIds.length === epics.length) {
+      onEpicSelectionChange([]);
+    } else {
+      onEpicSelectionChange(epics.map(epic => epic.id));
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardHeader>
@@ -57,6 +78,23 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Select All Toggle */}
+        {!isFinalized && (
+          <div className="flex items-center space-x-2 p-3 bg-stone-50 dark:bg-stone-800 rounded-lg border">
+            <Checkbox
+              id="select-all"
+              checked={selectedEpicIds.length === epics.length}
+              onCheckedChange={handleSelectAll}
+            />
+            <label 
+              htmlFor="select-all" 
+              className="text-sm font-medium text-stone-700 dark:text-stone-300 cursor-pointer"
+            >
+              Select All Epics ({selectedEpicIds.length} of {epics.length} selected)
+            </label>
+          </div>
+        )}
+
         {/* Epic List */}
         <div className="space-y-4">
           {epics.map((epic, index) => (
@@ -65,6 +103,15 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
               className="p-4 border border-stone-200 dark:border-stone-700 rounded-lg bg-white dark:bg-stone-800"
             >
               <div className="flex items-start space-x-3">
+                {!isFinalized && (
+                  <div className="flex-shrink-0 pt-1">
+                    <Checkbox
+                      id={`epic-${epic.id}`}
+                      checked={selectedEpicIds.includes(epic.id)}
+                      onCheckedChange={(checked) => handleEpicToggle(epic.id, checked as boolean)}
+                    />
+                  </div>
+                )}
                 <div className="flex-shrink-0 w-8 h-8 bg-amber-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
                   {index + 1}
                 </div>
@@ -148,11 +195,11 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
             
             <Button
               onClick={onFinalize}
-              disabled={isGenerating}
+              disabled={isGenerating || selectedEpicIds.length === 0}
               className="bg-green-700 hover:bg-green-600 flex items-center space-x-2"
             >
               <CheckCircle className="w-4 h-4" />
-              <span>Finalize</span>
+              <span>Finalize Selected ({selectedEpicIds.length})</span>
             </Button>
           </div>
         )}

@@ -31,11 +31,19 @@ const Index = () => {
   const [brdContent, setBrdContent] = useState('');
   const [epics, setEpics] = useState<Epic[]>([]);
   const [stories, setStories] = useState<Story[]>([]);
+  const [selectedEpicIds, setSelectedEpicIds] = useState<string[]>([]);
   const [isEpicsFinalized, setIsEpicsFinalized] = useState(false);
   const [isStoriesFinalized, setIsStoriesFinalized] = useState(false);
   const [isGeneratingEpics, setIsGeneratingEpics] = useState(false);
   const [isGeneratingStories, setIsGeneratingStories] = useState(false);
   const { toast } = useToast();
+
+  // Auto-select all epics when they are generated
+  useEffect(() => {
+    if (epics.length > 0 && selectedEpicIds.length === 0) {
+      setSelectedEpicIds(epics.map(epic => epic.id));
+    }
+  }, [epics]);
 
   // Get current workflow step
   const getCurrentWorkflowStep = () => {
@@ -49,6 +57,8 @@ const Index = () => {
     setBrdContent(content);
     setIsGeneratingEpics(true);
     setEpics([]); // Clear previous epics
+    setSelectedEpicIds([]); // Clear selected epics
+    setStories([]); // Clear previous stories
     
     try {
       const generatedEpics = await generateEpicsWithGroq(content);
@@ -75,6 +85,8 @@ const Index = () => {
         return;
     }
     setIsGeneratingEpics(true);
+    setSelectedEpicIds([]); // Clear selected epics
+    setStories([]); // Clear previous stories
     try {
       const generatedEpics = await generateEpicsWithGroq(brdContent);
       setEpics(generatedEpics);
@@ -94,27 +106,38 @@ const Index = () => {
   };
 
   const handleFinalizeEpics = () => {
+    if (selectedEpicIds.length === 0) {
+      toast({
+        title: "No Epics Selected",
+        description: "Please select at least one epic before finalizing.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setIsEpicsFinalized(true);
     toast({
       title: "Epics Finalized",
-      description: "Your epics are now locked. You can proceed to generate user stories."
+      description: `${selectedEpicIds.length} epics are now locked. You can proceed to generate user stories.`
     });
   };
 
   const handleGenerateStories = async () => {
-    if (epics.length === 0) {
-        toast({ title: "No Epics", description: "Cannot generate stories without epics.", variant: "destructive"});
+    if (selectedEpicIds.length === 0) {
+        toast({ title: "No Epics Selected", description: "Please select epics to generate stories for.", variant: "destructive"});
         return;
     }
+    
+    const selectedEpics = epics.filter(epic => selectedEpicIds.includes(epic.id));
     setIsGeneratingStories(true);
     setStories([]); // Clear previous stories
     
     try {
-      const generatedStories = await generateStoriesWithGroq(epics, brdContent);
+      const generatedStories = await generateStoriesWithGroq(selectedEpics, brdContent);
       setStories(generatedStories);
       toast({
         title: "User Stories Generated",
-        description: `Generated ${generatedStories.length} user stories using Groq AI.`
+        description: `Generated ${generatedStories.length} user stories for ${selectedEpics.length} selected epics using Groq AI.`
       });
     } catch (error) {
       console.error("Generate Stories Error:", error);
@@ -129,17 +152,19 @@ const Index = () => {
   };
 
   const handleRegenerateStories = async (feedback: string) => {
-    if (epics.length === 0) {
-        toast({ title: "No Epics", description: "Cannot regenerate stories without epics.", variant: "destructive"});
+    if (selectedEpicIds.length === 0) {
+        toast({ title: "No Epics Selected", description: "Cannot regenerate stories without selected epics.", variant: "destructive"});
         return;
     }
+    
+    const selectedEpics = epics.filter(epic => selectedEpicIds.includes(epic.id));
     setIsGeneratingStories(true);
     try {
-      const generatedStories = await generateStoriesWithGroq(epics, brdContent);
+      const generatedStories = await generateStoriesWithGroq(selectedEpics, brdContent);
       setStories(generatedStories);
       toast({
         title: "Stories Regenerated",
-        description: "User stories have been regenerated using Groq AI."
+        description: `User stories have been regenerated for ${selectedEpics.length} selected epics using Groq AI.`
       });
     } catch (error) {
       toast({
@@ -177,15 +202,17 @@ const Index = () => {
             epics={epics}
             isFinalized={isEpicsFinalized}
             isGenerating={isGeneratingEpics}
+            selectedEpicIds={selectedEpicIds}
+            onEpicSelectionChange={setSelectedEpicIds}
             onRegenerate={handleRegenerateEpics}
             onFinalize={handleFinalizeEpics}
           />
         )}
         
-        {isEpicsFinalized && epics.length > 0 && (
+        {isEpicsFinalized && selectedEpicIds.length > 0 && (
           <StoryGeneration
             stories={stories}
-            epics={epics}
+            epics={epics.filter(epic => selectedEpicIds.includes(epic.id))}
             isFinalized={isStoriesFinalized}
             isGenerating={isGeneratingStories}
             onGenerate={handleGenerateStories}
