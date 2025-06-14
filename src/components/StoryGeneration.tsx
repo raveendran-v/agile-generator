@@ -213,7 +213,7 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-center space-x-2 py-8" role="status" aria-live="polite">
+          <div className="flex items-center justify-center space-x-2 py-8">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-800"></div>
             <span className="text-stone-600 dark:text-stone-400">
               Generating user stories from your epic...
@@ -246,16 +246,13 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
         {/* Iteration Summary */}
         {!isShowingAllStories && (
           <div className="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
-            <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
-              Current Iteration Summary
-            </h3>
-            <p className="text-sm text-amber-700 dark:text-amber-300">
-              {stories.length} stories for {epics.length} epic(s)
-            </p>
+            <div className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-2">
+              Current Iteration: {stories.length} stories for {epics.length} epic(s)
+            </div>
             {allStories.length > 0 && (
-              <p className="text-sm text-amber-700 dark:text-amber-300">
+              <div className="text-sm text-amber-700 dark:text-amber-300">
                 Total stories across all iterations: {allStories.length + stories.length}
-              </p>
+              </div>
             )}
           </div>
         )}
@@ -263,13 +260,13 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
         {/* Story List */}
         <div className="space-y-6">
           {displayStories.map((story, index) => (
-            <article
+            <div
               key={story.id}
               className="p-6 border border-stone-200 dark:border-stone-700 rounded-lg bg-white dark:bg-stone-800"
             >
               <div className="space-y-4">
                 {/* Story Header */}
-                <header className="flex items-start justify-between">
+                <div className="flex items-start justify-between">
                   <h3 className="font-semibold text-stone-900 dark:text-stone-100 pr-4">
                     {story.story_name}
                   </h3>
@@ -277,7 +274,7 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
                     <Badge variant="secondary">{story.label}</Badge>
                     <Badge variant="outline">{story.status}</Badge>
                   </div>
-                </header>
+                </div>
 
                 {/* Epic Reference */}
                 <p className="text-sm text-stone-500 dark:text-stone-400">
@@ -290,61 +287,61 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
                 </p>
 
                 {/* Acceptance Criteria */}
-                <section className="space-y-2">
+                <div className="space-y-2">
                   <h4 className="font-medium text-stone-900 dark:text-stone-100">
-                    Acceptance Criteria
+                    Acceptance Criteria:
                   </h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-stone-600 dark:text-stone-400">
                     {story.acceptance_criteria.map((criteria, idx) => (
                       <li key={idx}>{criteria}</li>
                     ))}
                   </ul>
-                </section>
+                </div>
 
                 {/* NFRs */}
-                <section className="space-y-2">
+                <div className="space-y-2">
                   <h4 className="font-medium text-stone-900 dark:text-stone-100">
-                    Non-Functional Requirements
+                    Non-Functional Requirements:
                   </h4>
                   <ul className="list-disc list-inside space-y-1 text-sm text-stone-600 dark:text-stone-400">
                     {story.nfrs.map((nfr, idx) => (
                       <li key={idx}>{nfr}</li>
                     ))}
                   </ul>
-                </section>
+                </div>
 
                 {/* DoD and DoR */}
                 <div className="grid md:grid-cols-2 gap-4">
-                  <section className="space-y-2">
+                  <div className="space-y-2">
                     <h4 className="font-medium text-stone-900 dark:text-stone-100">
-                      Definition of Done
+                      Definition of Done:
                     </h4>
                     <ul className="list-disc list-inside space-y-1 text-sm text-stone-600 dark:text-stone-400">
                       {story.dod.map((item, idx) => (
                         <li key={idx}>{item}</li>
                       ))}
                     </ul>
-                  </section>
+                  </div>
                   
-                  <section className="space-y-2">
+                  <div className="space-y-2">
                     <h4 className="font-medium text-stone-900 dark:text-stone-100">
-                      Definition of Ready
+                      Definition of Ready:
                     </h4>
                     <ul className="list-disc list-inside space-y-1 text-sm text-stone-600 dark:text-stone-400">
                       {story.dor.map((item, idx) => (
                         <li key={idx}>{item}</li>
                       ))}
                     </ul>
-                  </section>
+                  </div>
                 </div>
               </div>
-            </article>
+            </div>
           ))}
         </div>
 
         {/* Loading State */}
         {isGenerating && (
-          <div className="flex items-center justify-center space-x-2 py-8" role="status" aria-live="polite">
+          <div className="flex items-center justify-center space-x-2 py-8">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-800"></div>
             <span className="text-stone-600 dark:text-stone-400">
               Regenerating user stories based on your feedback...
@@ -355,11 +352,10 @@ const StoryGeneration: React.FC<StoryGenerationProps> = ({
         {/* Feedback Section */}
         {showFeedback && !isFinalized && !isShowingAllStories && (
           <div className="space-y-3 p-4 bg-stone-50 dark:bg-stone-800 rounded-lg border">
-            <label htmlFor="feedback-textarea" className="text-sm font-medium text-stone-700 dark:text-stone-300">
+            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
               Provide feedback for regeneration:
             </label>
             <Textarea
-              id="feedback-textarea"
               value={feedback}
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Describe what changes you'd like to see in the user stories..."
