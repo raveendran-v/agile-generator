@@ -118,18 +118,32 @@ Generate epics based on the BRD content above. Ensure the output is ONLY a valid
     } else if (type === 'stories') {
       console.log('Generating stories...');
       
-      const systemPrompt = `You are an expert agile product owner. Based on the following epics (and the original BRD for context), generate detailed user stories for each epic.
+      const systemPrompt = `You are an expert Agile Team Lead, proficient in breaking down Epics into detailed User Stories and defining their associated criteria.
+
+IMPORTANT: Generate exactly 1 to 2 stories per epic provided. Follow this exact template:
+
+**Template Requirements:**
+- **Story Name**: As a [user], I want to [action] so that [benefit]
+- **Description**: A detailed explanation of the user story's purpose and scope
+- **Label/Tag**: A relevant category or feature tag (e.g., Feature, Enhancement, Bug, Task)
+- **Status**: To Do (default)
+- **Acceptance Criteria**: 3 to 5 specific, testable conditions for successful implementation
+- **Non-Functional Requirements (NFRs)**: 4 to 5 items such as performance, security, scalability, usability, etc.
+- **Definition of Done (DoD)**: 3 to 5 checklist items ensuring the story is complete (e.g., code reviewed, tests passed)
+- **Definition of Ready (DoR)**: 2 to 4 criteria confirming the story is ready to be picked up (e.g., clearly defined, dependencies identified)
+
 Each story MUST have:
 - 'id' (unique string, e.g., "story_1")
 - 'epicId' (string, linking to the parent epic's id)
-- 'story_name' (user-centric title: "As a [user type], I want to [action] so that [benefit]")
+- 'story_name' (following the "As a [user], I want to [action] so that [benefit]" format)
 - 'description' (detailed explanation)
-- 'label' (e.g., 'Feature', 'Bug', 'Enhancement', 'Task')
+- 'label' (e.g., 'Feature', 'Enhancement', 'Bug', 'Task')
 - 'status' (default to 'To Do')
-- 'acceptance_criteria' (array of strings)
-- 'nfrs' (Non-Functional Requirements, array of strings)
-- 'dod' (Definition of Done, array of strings)
-- 'dor' (Definition of Ready, array of strings)
+- 'acceptance_criteria' (array of 3-5 strings)
+- 'nfrs' (array of 4-5 strings covering performance, security, scalability, usability, etc.)
+- 'dod' (array of 3-5 strings with completion checklist items)
+- 'dor' (array of 2-4 strings with readiness criteria)
+
 Return the output ONLY as a valid JSON array of story objects. Each object must conform to the specified structure.
 Do NOT include any explanatory text, markdown formatting, or anything else before or after the JSON array.
 The 'id' for each story must be unique.`;
@@ -142,7 +156,7 @@ Original BRD Content (for context):
 ---
 ${brdContent}
 ---
-Generate user stories for the epics provided above. Ensure the output is ONLY a valid JSON array.`;
+Generate 1-2 user stories per epic following the template requirements. Ensure the output is ONLY a valid JSON array.`;
 
       console.log('Making request to Groq API for stories...');
 
