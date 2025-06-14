@@ -5,87 +5,87 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Definition of the design system with maroon, beige, and blue color palette */
+/* Updated design system with maroon and blue color palette to match brand */
 
 @layer base {
   :root {
-    --background: 44 10% 95%; /* Light beige background */
-    --foreground: 24 9% 10%; /* Dark text */
+    --background: 0 0% 98%; /* Clean white background */
+    --foreground: 0 0% 15%; /* Dark text */
 
     --card: 0 0% 100%;
-    --card-foreground: 24 9% 10%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 24 9% 10%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 0 51% 27%; /* Maroon primary */
-    --primary-foreground: 44 10% 95%;
+    --primary: 0 60% 35%; /* Rich maroon from your brand */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 44 20% 88%; /* Light beige secondary */
-    --secondary-foreground: 24 9% 10%;
+    --secondary: 210 100% 55%; /* Professional blue from your brand */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 44 20% 88%;
-    --muted-foreground: 25 5% 45%;
+    --muted: 210 10% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 207 90% 54%; /* Blue accent */
-    --accent-foreground: 210 40% 98%;
+    --accent: 210 100% 55%; /* Blue accent */
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 44 15% 85%;
-    --input: 44 15% 85%;
-    --ring: 0 51% 27%;
+    --border: 0 0% 90%;
+    --input: 0 0% 95%;
+    --ring: 0 60% 35%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 44 10% 95%;
-    --sidebar-foreground: 24 9% 10%;
-    --sidebar-primary: 0 51% 27%;
-    --sidebar-primary-foreground: 44 10% 95%;
-    --sidebar-accent: 44 20% 88%;
-    --sidebar-accent-foreground: 24 9% 10%;
-    --sidebar-border: 44 15% 85%;
-    --sidebar-ring: 0 51% 27%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 0 60% 35%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 210 10% 96%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 60% 35%;
   }
 
   .dark {
-    --background: 24 9% 10%; /* Dark background */
-    --foreground: 44 10% 95%; /* Light text */
+    --background: 0 0% 8%; /* Dark background */
+    --foreground: 0 0% 95%; /* Light text */
 
-    --card: 24 9% 12%;
-    --card-foreground: 44 10% 95%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 95%;
 
-    --popover: 24 9% 12%;
-    --popover-foreground: 44 10% 95%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 0 51% 40%; /* Lighter maroon for dark mode */
-    --primary-foreground: 44 10% 95%;
+    --primary: 0 60% 45%; /* Lighter maroon for dark mode */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 24 9% 15%;
-    --secondary-foreground: 44 10% 95%;
+    --secondary: 210 100% 60%; /* Brighter blue for dark mode */
+    --secondary-foreground: 0 0% 8%;
 
-    --muted: 24 9% 15%;
-    --muted-foreground: 25 5% 60%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 207 90% 54%; /* Blue accent remains same */
-    --accent-foreground: 24 9% 10%;
+    --accent: 210 100% 60%;
+    --accent-foreground: 0 0% 8%;
 
     --destructive: 0 62.8% 50%;
-    --destructive-foreground: 44 10% 95%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 24 9% 15%;
-    --input: 24 9% 15%;
-    --ring: 0 51% 40%;
+    --border: 0 0% 18%;
+    --input: 0 0% 18%;
+    --ring: 0 60% 45%;
 
-    --sidebar-background: 24 9% 10%;
-    --sidebar-foreground: 44 10% 95%;
-    --sidebar-primary: 0 51% 40%;
-    --sidebar-primary-foreground: 44 10% 95%;
-    --sidebar-accent: 24 9% 15%;
-    --sidebar-accent-foreground: 44 10% 95%;
-    --sidebar-border: 24 9% 15%;
-    --sidebar-ring: 0 51% 40%;
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 60% 45%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 0 60% 45%;
   }
 }
 
@@ -97,9 +97,31 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
+    line-height: 1.6;
   }
 
   .font-serif {
     font-family: 'Playfair Display', serif;
+  }
+}
+
+/* Custom gradient backgrounds */
+@layer utilities {
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--secondary)) 100%);
+  }
+  
+  .gradient-card {
+    background: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--muted)) 100%);
+  }
+  
+  .glass-effect {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  
+  .shadow-modern {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
 }

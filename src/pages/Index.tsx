@@ -248,10 +248,10 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Header />
       
-      <main className="container mx-auto px-4 py-8 space-y-8">
+      <main className="container mx-auto px-6 py-12 space-y-12">
         <BRDInput 
           onSubmit={handleBRDSubmit}
           workflowStep={getCurrentWorkflowStep()}

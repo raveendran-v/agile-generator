@@ -1,9 +1,8 @@
-
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Upload, FileText, CheckCircle } from 'lucide-react';
+import { Upload, FileText, CheckCircle, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface BRDInputProps {
@@ -169,46 +168,79 @@ const BRDInput: React.FC<BRDInputProps> = ({
   const workflowProgress = getWorkflowProgress();
 
   return (
-    <div className="w-full space-y-6">
-      {/* Workflow Progress Bar */}
-      <div className="w-full space-y-3">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-stone-800 dark:text-stone-200">
-            Progress Workflow
-          </h3>
-          <span className="text-sm text-stone-600 dark:text-stone-400">
-            {Math.round(workflowProgress)}% Complete
-          </span>
-        </div>
+    <div className="w-full space-y-8">
+      {/* Modern Workflow Progress Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50 p-8 shadow-modern border border-gray-100 dark:border-gray-800">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full blur-3xl"></div>
         
-        <Progress value={workflowProgress} className="h-3" />
-        
-        <div className="flex justify-between items-center text-xs">
-          <div className={`flex items-center space-x-1 ${workflowProgress >= 33 ? 'text-green-600 dark:text-green-400' : 'text-stone-500'}`}>
-            {workflowProgress >= 33 && <CheckCircle className="w-3 h-3" />}
-            <span>BRD Upload</span>
+        <div className="relative space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-xl bg-gradient-primary">
+                <Sparkles className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 font-serif">
+                  Workflow Progress
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Transform your requirements into actionable stories
+                </p>
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-2xl font-bold text-primary">{Math.round(workflowProgress)}%</div>
+              <div className="text-xs text-gray-500">Complete</div>
+            </div>
           </div>
-          <div className={`flex items-center space-x-1 ${workflowProgress >= 66 ? 'text-green-600 dark:text-green-400' : 'text-stone-500'}`}>
-            {workflowProgress >= 66 && <CheckCircle className="w-3 h-3" />}
-            <span>Epics</span>
+          
+          <div className="space-y-3">
+            <Progress value={workflowProgress} className="h-2" />
+            
+            <div className="flex justify-between items-center">
+              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                workflowProgress >= 33 
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                  : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+              }`}>
+                {workflowProgress >= 33 && <CheckCircle className="w-3 h-3" />}
+                <span>BRD Upload</span>
+              </div>
+              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                workflowProgress >= 66 
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                  : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+              }`}>
+                {workflowProgress >= 66 && <CheckCircle className="w-3 h-3" />}
+                <span>Epics</span>
+              </div>
+              <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                workflowProgress >= 100 
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+                  : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+              }`}>
+                {workflowProgress >= 100 && <CheckCircle className="w-3 h-3" />}
+                <span>Stories</span>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${
+                isGeneratingEpics || isGeneratingStories 
+                  ? 'bg-secondary/10 text-secondary animate-pulse' 
+                  : 'bg-primary/10 text-primary'
+              }`}>
+                {getWorkflowStepText()}
+              </span>
+            </div>
           </div>
-          <div className={`flex items-center space-x-1 ${workflowProgress >= 100 ? 'text-green-600 dark:text-green-400' : 'text-stone-500'}`}>
-            {workflowProgress >= 100 && <CheckCircle className="w-3 h-3" />}
-            <span>Stories</span>
-          </div>
-        </div>
-        
-        <div className="text-center">
-          <span className="text-sm font-medium text-stone-700 dark:text-stone-300">
-            {getWorkflowStepText()}
-          </span>
         </div>
       </div>
 
       {/* File Upload Progress (only shown during upload) */}
       {isUploading && (
-        <div className="w-full space-y-2">
-          <div className="flex justify-between text-sm text-stone-600 dark:text-stone-400">
+        <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-lg border border-gray-100 dark:border-gray-800">
+          <div className="flex justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
             <span>Processing document...</span>
             <span>{uploadProgress}%</span>
           </div>
@@ -216,93 +248,117 @@ const BRDInput: React.FC<BRDInputProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left side - BRD Content Display */}
         {content && (
-          <Card className="h-fit">
-            <CardHeader>
-              <CardTitle className="text-lg font-serif text-stone-900 dark:text-stone-100">
-                BRD Content
-              </CardTitle>
-              <CardDescription>
-                Extracted content from your uploaded document
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-stone-50 dark:bg-stone-800 rounded-lg p-4 max-h-96 overflow-y-auto">
-                <pre className="text-sm text-stone-700 dark:text-stone-300 whitespace-pre-wrap font-mono">
-                  {content}
-                </pre>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="order-1 lg:order-1">
+            <Card className="h-fit shadow-modern border-0 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-serif text-gray-900 dark:text-gray-100 flex items-center space-x-2">
+                  <FileText className="w-5 h-5 text-primary" />
+                  <span>BRD Content</span>
+                </CardTitle>
+                <CardDescription className="text-gray-600 dark:text-gray-400">
+                  Extracted content from your uploaded document
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-white dark:bg-gray-800 rounded-xl p-6 max-h-96 overflow-y-auto border border-gray-100 dark:border-gray-700 shadow-inner">
+                  <pre className="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap font-mono leading-relaxed">
+                    {content}
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         )}
 
         {/* Right side - File Upload */}
-        <Card className="h-fit">
-          <CardHeader>
-            <CardTitle className="text-xl font-serif text-stone-900 dark:text-stone-100">
-              Business Requirements Document Input
-            </CardTitle>
-            <CardDescription>
-              Upload your BRD file to generate epics and user stories.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* File Upload Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-center w-full">
-                <label
-                  htmlFor="file-upload"
-                  className="flex flex-col items-center justify-center w-full h-32 border-2 border-stone-300 border-dashed rounded-lg cursor-pointer bg-stone-50 dark:bg-stone-800 hover:bg-stone-100 dark:border-stone-600 dark:hover:border-stone-500 dark:hover:bg-stone-700 transition-colors"
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    {isUploading ? (
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-800"></div>
-                    ) : (
-                      <>
-                        <Upload className="w-8 h-8 mb-2 text-stone-500 dark:text-stone-400" />
-                        <p className="mb-2 text-sm text-stone-500 dark:text-stone-400">
-                          <span className="font-semibold">Click to upload</span> or drag and drop
-                        </p>
-                        <p className="text-xs text-stone-500 dark:text-stone-400">
-                          PDF, DOCX, or TXT (Max 10MB)
-                        </p>
-                      </>
-                    )}
+        <div className="order-2 lg:order-2">
+          <Card className="h-fit shadow-modern border-0 bg-gradient-to-br from-white to-gray-50/50 dark:from-gray-900 dark:to-gray-800/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-serif text-gray-900 dark:text-gray-100">
+                Business Requirements Document
+              </CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-400">
+                Upload your BRD file to generate epics and user stories automatically.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Modern File Upload Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-center w-full">
+                  <label
+                    htmlFor="file-upload"
+                    className={`flex flex-col items-center justify-center w-full h-40 border-2 border-dashed rounded-2xl cursor-pointer transition-all duration-300 ${
+                      isUploading 
+                        ? 'border-secondary/50 bg-secondary/5' 
+                        : 'border-gray-300 dark:border-gray-600 bg-gray-50/50 dark:bg-gray-800/50 hover:bg-gray-100/50 dark:hover:bg-gray-700/50 hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center justify-center py-8">
+                      {isUploading ? (
+                        <div className="space-y-3 text-center">
+                          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-secondary mx-auto"></div>
+                          <p className="text-sm text-secondary font-medium">Processing your document...</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3 text-center">
+                          <div className="p-3 rounded-full bg-gradient-primary mx-auto w-fit">
+                            <Upload className="w-6 h-6 text-white" />
+                          </div>
+                          <div>
+                            <p className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                              Click to upload or drag and drop
+                            </p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                              PDF, DOCX, or TXT files (Max 10MB)
+                            </p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      id="file-upload"
+                      type="file"
+                      className="hidden"
+                      accept=".pdf,.docx,.txt"
+                      onChange={handleFileSelect}
+                      disabled={isUploading}
+                    />
+                  </label>
+                </div>
+
+                {uploadedFile && (
+                  <div className="flex items-center space-x-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800">
+                    <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/30">
+                      <FileText className="w-4 h-4 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-green-700 dark:text-green-300">
+                        {uploadedFile.name}
+                      </p>
+                      <p className="text-xs text-green-600 dark:text-green-400">
+                        Uploaded successfully
+                      </p>
+                    </div>
                   </div>
-                  <input
-                    ref={fileInputRef}
-                    id="file-upload"
-                    type="file"
-                    className="hidden"
-                    accept=".pdf,.docx,.txt"
-                    onChange={handleFileSelect}
-                    disabled={isUploading}
-                  />
-                </label>
+                )}
               </div>
 
-              {uploadedFile && (
-                <div className="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                  <FileText className="w-5 h-5 text-green-600 dark:text-green-400" />
-                  <span className="text-sm text-green-700 dark:text-green-300">
-                    {uploadedFile.name} uploaded successfully
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <Button
-              onClick={handleSubmit}
-              disabled={!content.trim() || isUploading}
-              className="w-full bg-amber-800 hover:bg-amber-700 text-white font-medium"
-            >
-              Generate Epics
-            </Button>
-          </CardContent>
-        </Card>
+              {/* Modern Submit Button */}
+              <Button
+                onClick={handleSubmit}
+                disabled={!content.trim() || isUploading}
+                className="w-full h-12 bg-gradient-primary hover:shadow-lg hover:scale-[1.02] transition-all duration-200 text-white font-semibold rounded-xl"
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                Generate Epics & Stories
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   );
