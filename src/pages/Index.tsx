@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import BRDInput from '../components/BRDInput';
@@ -41,6 +42,227 @@ const Index = () => {
   const [isGeneratingStories, setIsGeneratingStories] = useState(false);
   const [currentWorkflowStep, setCurrentWorkflowStep] = useState<'brd' | 'epics' | 'stories' | 'iteration-complete'>('brd');
   const { toast } = useToast();
+
+  // Get available epics (those not yet processed)
+  const getAvailableEpics = () => {
+    return epics.filter(epic => !processedEpicIds.has(epic.id));
+  };
+
+  const handleBRDSubmit = async (content: string) => {
+    setBrdContent(content);
+    setIsGeneratingEpics(true);
+    // Reset all state for new BRD
+    setEpics([]);
+    setSelectedEpicId('');
+    setAllStories([]);
+    setCurrentIterationStories([]);
+    setProcessedEpicIds(new Set());
+    setIsEpicsFinalized(false);
+    setIsCurrentIterationFinalized(false);
+    setCurrentWorkflowStep('brd');
+    
+    try {
+      const generatedEpics = await generateEpicsWithGroq(content);
+      setEpics(generatedEpics);
+      setCurrentWorkflowStep('epics');
+      toast({
+        title: "Epics Generated Successfully",
+        description: `Generated ${generatedEpics.length} epics using Groq AI.`
+      });
+    } catch (error) {
+      console.error("BRD Submit Error:", error);
+      toast({
+        title: "Error Generating Epics",
+        description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingEpics(false);
+    }
+  };
+
+  const handleRegenerateEpics = async (feedback: string) => {
+    if (!brdContent) {
+      toast({ title: "Error", description: "BRD content is missing.", variant: "destructive"});
+      return;
+    }
+    setIsGeneratingEpics(true);
+    // Reset epic-related state
+    setSelectedEpicId('');
+    setAllStories([]);
+    setCurrentIterationStories([]);
+    setProcessedEpicIds(new Set());
+    setIsEpicsFinalized(false);
+    setIsCurrentIterationFinalized(false);
+    try {
+      const generatedEpics = await generateEpicsWithGroq(brdContent);
+      setEpics(generatedEpics);
+      setCurrentWorkflowStep('epics');
+      toast({
+        title: "Epics Regenerated",
+        description: "Epics have been regenerated using Groq AI."
+      });
+    } catch (error) {
+      toast({
+        title: "Error Regenerating Epics",
+        description: error instanceof Error ? error.message : "Failed to regenerate epics. Check console.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingEpics(false);
+    }
+  };
+
+  const handleFinalizeEpics = () => {
+    setIsEpicsFinalized(true);
+    toast({
+      title: "Epics Finalized",
+      description: `${epics.length} epics are now locked. Select an epic to generate user stories.`
+    });
+  };
+
+  const handleGenerateStoriesForEpic = async (epicId: string) => {
+    setSelectedEpicId(epicId);
+    setCurrentIterationStories([]);
+    setIsCurrentIterationFinalized(false);
+    setCurrentWorkflowStep('stories');
+    
+    const selectedEpic = epics.find(epic => epic.id === epicId);
+    if (!selectedEpic) return;
+    
+    setIsGeneratingStories(true);
+    
+    try {
+      const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
+      setCurrentIterationStories(generatedStories);
+      toast({
+        title: "User Stories Generated",
+        description: `Generated ${generatedStories.length} user stories for the selected epic using Groq AI.`
+      });
+    } catch (error) {
+      console.error("Generate Stories Error:", error);
+      toast({
+        title: "Error Generating Stories",
+        description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingStories(false);
+    }
+  };
+
+  const handleSelectEpic = (epicId: string) => {
+    setSelectedEpicId(epicId);
+    setCurrentIterationStories([]);
+    setIsCurrentIterationFinalized(false);
+    setCurrentWorkflowStep('stories');
+  };
+
+  const handleGenerateStories = async () => {
+    if (!selectedEpicId) {
+      toast({ title: "No Epic Selected", description: "Please select an epic to generate stories for.", variant: "destructive"});
+      return;
+    }
+    
+    const selectedEpic = epics.find(epic => epic.id === selectedEpicId);
+    if (!selectedEpic) return;
+    
+    setIsGeneratingStories(true);
+    setCurrentIterationStories([]);
+    
+    try {
+      const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
+      setCurrentIterationStories(generatedStories);
+      toast({
+        title: "User Stories Generated",
+        description: `Generated ${generatedStories.length} user stories for the selected epic using Groq AI.`
+      });
+    } catch (error) {
+      console.error("Generate Stories Error:", error);
+      toast({
+        title: "Error Generating Stories",
+        description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingStories(false);
+    }
+  };
+
+  const handleRegenerateStories = async (feedback: string) => {
+    if (!selectedEpicId) {
+      toast({ title: "No Epic Selected", description: "Cannot regenerate stories without selected epic.", variant: "destructive"});
+      return;
+    }
+    
+    const selectedEpic = epics.find(epic => epic.id === selectedEpicId);
+    if (!selectedEpic) return;
+    
+    setIsGeneratingStories(true);
+    try {
+      const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
+      setCurrentIterationStories(generatedStories);
+      toast({
+        title: "Stories Regenerated",
+        description: `User stories have been regenerated for the selected epic using Groq AI.`
+      });
+    } catch (error) {
+      toast({
+        title: "Error Regenerating Stories",
+        description: error instanceof Error ? error.message : "Failed to regenerate stories. Check console.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsGeneratingStories(false);
+    }
+  };
+
+  const handleFinalizeCurrentIteration = () => {
+    // Add current iteration stories to all stories
+    setAllStories(prev => [...prev, ...currentIterationStories]);
+    
+    // Mark this epic as processed
+    const newProcessedEpicIds = new Set([...processedEpicIds, selectedEpicId]);
+    setProcessedEpicIds(newProcessedEpicIds);
+    
+    // Reset for next iteration
+    setSelectedEpicId('');
+    setCurrentIterationStories([]);
+    setIsCurrentIterationFinalized(false);
+    
+    // Check if there are more epics to process
+    const remainingEpics = epics.filter(epic => !newProcessedEpicIds.has(epic.id));
+    
+    if (remainingEpics.length > 0) {
+      setCurrentWorkflowStep('epics');
+      toast({
+        title: "Stories Finalized",
+        description: `Stories finalized for this epic. ${remainingEpics.length} epic(s) remaining. Select another epic to continue.`
+      });
+    } else {
+      setCurrentWorkflowStep('iteration-complete');
+      toast({
+        title: "All Stories Complete",
+        description: "All epics now have user stories generated. Process complete!"
+      });
+    }
+  };
+
+  const handleContinueForRemainingEpics = () => {
+    setCurrentWorkflowStep('epics');
+    toast({
+      title: "Continuing with Remaining Epics",
+      description: "Select another epic to generate more stories."
+    });
+  };
+
+  const handleEndFlow = () => {
+    setCurrentWorkflowStep('iteration-complete');
+    toast({
+      title: "Flow Ended",
+      description: "Epic and story generation process has been completed."
+    });
+  };
 
   if (viewMode === 'demo') {
     return (
@@ -140,224 +362,3 @@ const Index = () => {
 };
 
 export default Index;
-
-const handleBRDSubmit = async (content: string) => {
-  setBrdContent(content);
-  setIsGeneratingEpics(true);
-  // Reset all state for new BRD
-  setEpics([]);
-  setSelectedEpicId('');
-  setAllStories([]);
-  setCurrentIterationStories([]);
-  setProcessedEpicIds(new Set());
-  setIsEpicsFinalized(false);
-  setIsCurrentIterationFinalized(false);
-  setCurrentWorkflowStep('brd');
-  
-  try {
-    const generatedEpics = await generateEpicsWithGroq(content);
-    setEpics(generatedEpics);
-    setCurrentWorkflowStep('epics');
-    toast({
-      title: "Epics Generated Successfully",
-      description: `Generated ${generatedEpics.length} epics using Groq AI.`
-    });
-  } catch (error) {
-    console.error("BRD Submit Error:", error);
-    toast({
-      title: "Error Generating Epics",
-      description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsGeneratingEpics(false);
-  }
-};
-
-const handleRegenerateEpics = async (feedback: string) => {
-  if (!brdContent) {
-    toast({ title: "Error", description: "BRD content is missing.", variant: "destructive"});
-    return;
-  }
-  setIsGeneratingEpics(true);
-  // Reset epic-related state
-  setSelectedEpicId('');
-  setAllStories([]);
-  setCurrentIterationStories([]);
-  setProcessedEpicIds(new Set());
-  setIsEpicsFinalized(false);
-  setIsCurrentIterationFinalized(false);
-  try {
-    const generatedEpics = await generateEpicsWithGroq(brdContent);
-    setEpics(generatedEpics);
-    setCurrentWorkflowStep('epics');
-    toast({
-      title: "Epics Regenerated",
-      description: "Epics have been regenerated using Groq AI."
-    });
-  } catch (error) {
-    toast({
-      title: "Error Regenerating Epics",
-      description: error instanceof Error ? error.message : "Failed to regenerate epics. Check console.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsGeneratingEpics(false);
-  }
-};
-
-const handleFinalizeEpics = () => {
-  setIsEpicsFinalized(true);
-  toast({
-    title: "Epics Finalized",
-    description: `${epics.length} epics are now locked. Select an epic to generate user stories.`
-  });
-};
-
-const handleGenerateStoriesForEpic = async (epicId: string) => {
-  setSelectedEpicId(epicId);
-  setCurrentIterationStories([]);
-  setIsCurrentIterationFinalized(false);
-  setCurrentWorkflowStep('stories');
-  
-  const selectedEpic = epics.find(epic => epic.id === epicId);
-  if (!selectedEpic) return;
-  
-  setIsGeneratingStories(true);
-  
-  try {
-    const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
-    setCurrentIterationStories(generatedStories);
-    toast({
-      title: "User Stories Generated",
-      description: `Generated ${generatedStories.length} user stories for the selected epic using Groq AI.`
-    });
-  } catch (error) {
-    console.error("Generate Stories Error:", error);
-    toast({
-      title: "Error Generating Stories",
-      description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsGeneratingStories(false);
-  }
-};
-
-const handleSelectEpic = (epicId: string) => {
-  setSelectedEpicId(epicId);
-  setCurrentIterationStories([]);
-  setIsCurrentIterationFinalized(false);
-  setCurrentWorkflowStep('stories');
-};
-
-const handleGenerateStories = async () => {
-  if (!selectedEpicId) {
-    toast({ title: "No Epic Selected", description: "Please select an epic to generate stories for.", variant: "destructive"});
-    return;
-  }
-  
-  const selectedEpic = epics.find(epic => epic.id === selectedEpicId);
-  if (!selectedEpic) return;
-  
-  setIsGeneratingStories(true);
-  setCurrentIterationStories([]);
-  
-  try {
-    const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
-    setCurrentIterationStories(generatedStories);
-    toast({
-      title: "User Stories Generated",
-      description: `Generated ${generatedStories.length} user stories for the selected epic using Groq AI.`
-    });
-  } catch (error) {
-    console.error("Generate Stories Error:", error);
-    toast({
-      title: "Error Generating Stories",
-      description: error instanceof Error ? error.message : "An unknown error occurred. Check console for details.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsGeneratingStories(false);
-  }
-};
-
-const handleRegenerateStories = async (feedback: string) => {
-  if (!selectedEpicId) {
-    toast({ title: "No Epic Selected", description: "Cannot regenerate stories without selected epic.", variant: "destructive"});
-    return;
-  }
-  
-  const selectedEpic = epics.find(epic => epic.id === selectedEpicId);
-  if (!selectedEpic) return;
-  
-  setIsGeneratingStories(true);
-  try {
-    const generatedStories = await generateStoriesWithGroq([selectedEpic], brdContent);
-    setCurrentIterationStories(generatedStories);
-    toast({
-      title: "Stories Regenerated",
-      description: `User stories have been regenerated for the selected epic using Groq AI.`
-    });
-  } catch (error) {
-    toast({
-      title: "Error Regenerating Stories",
-      description: error instanceof Error ? error.message : "Failed to regenerate stories. Check console.",
-      variant: "destructive"
-    });
-  } finally {
-    setIsGeneratingStories(false);
-  }
-};
-
-const handleFinalizeCurrentIteration = () => {
-  // Add current iteration stories to all stories
-  setAllStories(prev => [...prev, ...currentIterationStories]);
-  
-  // Mark this epic as processed
-  const newProcessedEpicIds = new Set([...processedEpicIds, selectedEpicId]);
-  setProcessedEpicIds(newProcessedEpicIds);
-  
-  // Reset for next iteration
-  setSelectedEpicId('');
-  setCurrentIterationStories([]);
-  setIsCurrentIterationFinalized(false);
-  
-  // Check if there are more epics to process
-  const remainingEpics = epics.filter(epic => !newProcessedEpicIds.has(epic.id));
-  
-  if (remainingEpics.length > 0) {
-    setCurrentWorkflowStep('epics');
-    toast({
-      title: "Stories Finalized",
-      description: `Stories finalized for this epic. ${remainingEpics.length} epic(s) remaining. Select another epic to continue.`
-    });
-  } else {
-    setCurrentWorkflowStep('iteration-complete');
-    toast({
-      title: "All Stories Complete",
-      description: "All epics now have user stories generated. Process complete!"
-    });
-  }
-};
-
-const handleContinueForRemainingEpics = () => {
-  setCurrentWorkflowStep('epics');
-  toast({
-    title: "Continuing with Remaining Epics",
-    description: "Select another epic to generate more stories."
-  });
-};
-
-const handleEndFlow = () => {
-  setCurrentWorkflowStep('iteration-complete');
-  toast({
-    title: "Flow Ended",
-    description: "Epic and story generation process has been completed."
-  });
-};
-
-// Get available epics (those not yet processed)
-const getAvailableEpics = () => {
-  return epics.filter(epic => !processedEpicIds.has(epic.id));
-};
