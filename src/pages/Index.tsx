@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import Header from '../components/Header';
 import BRDInput from '../components/BRDInput';
@@ -210,7 +209,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-tech-content via-white to-blue-50">
       <Header />
       
       <main className="container mx-auto px-6 py-12 space-y-12">

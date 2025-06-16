@@ -25,9 +25,9 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
       label: 'Completed',
       count: completedEpics,
       subLabel: `${Object.values(storiesPerEpic).reduce((sum, count) => sum + count, 0)} stories`,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100 dark:bg-green-900/30',
-      borderColor: 'border-green-300 dark:border-green-700',
+      color: 'text-green-700',
+      bgColor: 'bg-gradient-to-br from-green-50 to-green-100',
+      borderColor: 'border-green-300',
       icon: CheckCircle,
       iconColor: 'text-green-600'
     },
@@ -35,21 +35,21 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
       label: 'In Progress',
       count: availableEpics,
       subLabel: 'Ready for stories',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/30',
-      borderColor: 'border-orange-300 dark:border-orange-700',
+      color: 'text-tech-orange',
+      bgColor: 'bg-gradient-to-br from-orange-50 to-tech-orange/10',
+      borderColor: 'border-tech-orange/30',
       icon: Play,
-      iconColor: 'text-orange-600'
+      iconColor: 'text-tech-orange'
     },
     {
       label: 'Pending',
       count: totalEpics - completedEpics - availableEpics,
       subLabel: 'Awaiting turn',
-      color: 'text-gray-500',
-      bgColor: 'bg-gray-100 dark:bg-gray-800',
-      borderColor: 'border-gray-300 dark:border-gray-600',
+      color: 'text-tech-navy',
+      bgColor: 'bg-gradient-to-br from-blue-50 to-tech-navy/10',
+      borderColor: 'border-tech-navy/30',
       icon: Circle,
-      iconColor: 'text-gray-500'
+      iconColor: 'text-tech-navy'
     }
   ];
 
@@ -60,15 +60,15 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
       {/* Modern Progress Bar */}
       <div className="relative">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-stone-800 dark:text-stone-200">
+          <h3 className="text-sm font-semibold text-tech-navy">
             Project Progress
           </h3>
           <div className="text-right">
-            <span className="text-sm font-medium text-stone-600 dark:text-stone-400">
+            <span className="text-sm font-medium text-tech-pink">
               {Math.round(progressPercentage)}%
             </span>
             {totalStories > 0 && (
-              <div className="text-xs text-stone-500 dark:text-stone-500">
+              <div className="text-xs text-tech-text-light">
                 {totalStories} stories total
               </div>
             )}
@@ -78,12 +78,12 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
         <div className="relative">
           <Progress 
             value={progressPercentage} 
-            className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
+            className="h-3 bg-gradient-to-r from-gray-200 to-gray-300"
           />
           
           {/* Animated gradient overlay for active progress */}
           <div 
-            className="absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 transition-all duration-1000 ease-out opacity-90"
+            className="absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r from-tech-pink via-tech-orange to-tech-navy transition-all duration-1000 ease-out opacity-90"
             style={{ width: `${progressPercentage}%` }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse rounded-full"></div>
@@ -114,10 +114,10 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
                   <div className={`text-2xl font-bold ${step.color} transition-all duration-300`}>
                     {step.count}
                   </div>
-                  <div className="text-xs font-medium text-stone-600 dark:text-stone-400 truncate">
+                  <div className="text-xs font-medium text-tech-text truncate">
                     {step.label}
                   </div>
-                  <div className="text-xs text-stone-500 dark:text-stone-500 truncate">
+                  <div className="text-xs text-tech-text-light truncate">
                     {step.subLabel}
                   </div>
                 </div>
@@ -125,7 +125,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
               {/* Animated border effect for active step */}
               {step.count > 0 && index === 1 && (
-                <div className="absolute inset-0 border-2 border-orange-400 rounded-xl animate-pulse opacity-50"></div>
+                <div className="absolute inset-0 border-2 border-tech-orange rounded-xl animate-pulse opacity-50"></div>
               )}
             </div>
           );
@@ -134,9 +134,9 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
       {/* Status Message */}
       <div className="text-center">
-        <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-800">
-          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></div>
-          <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+        <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-tech-pink/10 to-tech-orange/10 border border-tech-pink/30">
+          <div className="w-2 h-2 bg-tech-pink rounded-full mr-2 animate-pulse"></div>
+          <span className="text-sm font-medium text-tech-navy">
             {completedEpics === totalEpics 
               ? `🎉 All ${totalEpics} epics completed with ${totalStories} stories!` 
               : availableEpics > 0 

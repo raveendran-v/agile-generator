@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -120,20 +119,20 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
   const totalStories = allStories.length;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center space-x-2 text-xl font-serif text-stone-900 dark:text-stone-100">
+    <Card className="w-full bg-white/80 backdrop-blur-sm border-tech-border shadow-lg">
+      <CardHeader className="bg-gradient-to-r from-tech-navy to-tech-pink text-white">
+        <CardTitle className="flex items-center space-x-2 text-xl font-serif">
           <span>Epic Management</span>
-          {isFinalized && <CheckCircle className="w-5 h-5 text-green-600" />}
+          {isFinalized && <CheckCircle className="w-5 h-5 text-green-300" />}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-blue-100">
           {isFinalized 
             ? "Epics are finalized. Select an epic to generate user stories."
             : "Review and finalize your epics before generating user stories."
           }
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-6 p-6">
         {/* Modern Progress Component */}
         {totalCount > 0 && (
           <WorkflowProgress 
@@ -148,38 +147,34 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
         {/* Epic List */}
         <div className="space-y-4">
           {availableCount === 0 ? (
-            <div className="text-center py-8 text-stone-500 dark:text-stone-400">
+            <div className="text-center py-8 text-tech-text-light">
               <CheckCircle className="w-12 h-12 mx-auto mb-4 text-green-500" />
-              <h3 className="font-semibold mb-2">All Epics Complete!</h3>
+              <h3 className="font-semibold mb-2 text-tech-navy">All Epics Complete!</h3>
               <p>All epics have user stories generated. You can export your complete project.</p>
             </div>
           ) : (
             epics.map((epic, index) => (
               <div
                 key={epic.id}
-                className={`p-4 border rounded-lg transition-all ${
-                  isFinalized 
-                    ? 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800'
-                    : 'border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800'
-                }`}
+                className="p-4 border border-tech-border rounded-lg transition-all bg-gradient-to-r from-white to-tech-content/50 hover:shadow-md"
               >
                 <div className="flex items-start space-x-3">
-                  <div className="flex-shrink-0 w-8 h-8 bg-amber-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                  <div className="flex-shrink-0 w-8 h-8 bg-gradient-to-r from-tech-navy to-tech-pink text-white rounded-full flex items-center justify-center text-sm font-medium">
                     {allEpics.findIndex(e => e.id === epic.id) + 1}
                   </div>
                   <div className="flex-1 space-y-2">
                     <div className="flex items-center justify-between">
-                      <h3 className="font-semibold text-stone-900 dark:text-stone-100">
+                      <h3 className="font-semibold text-tech-navy">
                         {epic.epic_name}
                       </h3>
                       <div className="flex items-center space-x-2">
-                        <Badge variant="outline" className="text-orange-600 border-orange-300">
+                        <Badge variant="outline" className="text-tech-orange border-tech-orange">
                           Pending
                         </Badge>
                         {isFinalized && (
                           <Button 
                             size="sm" 
-                            className="bg-amber-800 hover:bg-amber-700"
+                            className="bg-gradient-to-r from-tech-pink to-tech-orange hover:from-tech-pink/80 hover:to-tech-orange/80 text-white"
                             onClick={() => handleGenerateStory(epic.id)}
                           >
                             <Play className="w-3 h-3 mr-1" />
@@ -188,7 +183,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
                         )}
                       </div>
                     </div>
-                    <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
+                    <p className="text-tech-text-light leading-relaxed">
                       {epic.epic_description}
                     </p>
                   </div>
@@ -201,8 +196,8 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
         {/* Loading State */}
         {isGenerating && (
           <div className="flex items-center justify-center space-x-2 py-8">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber-800"></div>
-            <span className="text-stone-600 dark:text-stone-400">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-tech-pink"></div>
+            <span className="text-tech-text-light">
               Regenerating epics based on your feedback...
             </span>
           </div>
@@ -210,8 +205,8 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
 
         {/* Feedback Section */}
         {showFeedback && !isFinalized && (
-          <div className="space-y-3 p-4 bg-stone-50 dark:bg-stone-800 rounded-lg border">
-            <label className="text-sm font-medium text-stone-700 dark:text-stone-300">
+          <div className="space-y-3 p-4 bg-gradient-to-r from-tech-content to-blue-50 rounded-lg border border-tech-border">
+            <label className="text-sm font-medium text-tech-navy">
               Provide feedback for regeneration:
             </label>
             <Textarea
@@ -219,13 +214,14 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
               onChange={(e) => setFeedback(e.target.value)}
               placeholder="Describe what changes you'd like to see in the epics..."
               rows={3}
+              className="border-tech-border focus:border-tech-pink"
             />
             <div className="flex space-x-2">
               <Button
                 onClick={handleRegenerate}
                 disabled={!feedback.trim() || isGenerating}
                 size="sm"
-                className="bg-amber-800 hover:bg-amber-700"
+                className="bg-gradient-to-r from-tech-navy to-tech-pink hover:from-tech-navy/80 hover:to-tech-pink/80 text-white"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Regenerate
@@ -234,6 +230,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFeedback(false)}
+                className="border-tech-border text-tech-navy hover:bg-tech-content"
               >
                 Cancel
               </Button>
@@ -248,7 +245,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
               variant="outline"
               onClick={() => setShowFeedback(!showFeedback)}
               disabled={isGenerating}
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-2 border-tech-border text-tech-navy hover:bg-tech-content"
             >
               <MessageSquare className="w-4 h-4" />
               <span>Feedback</span>
@@ -257,7 +254,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
             <Button
               onClick={onFinalize}
               disabled={isGenerating}
-              className="bg-green-700 hover:bg-green-600 flex items-center space-x-2"
+              className="bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white flex items-center space-x-2"
             >
               <CheckCircle className="w-4 h-4" />
               <span>Finalize Epics</span>
@@ -269,7 +266,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
         {(availableCount === 0 || isFinalized) && (
           <Button
             onClick={handleExport}
-            className="bg-blue-600 hover:bg-blue-500 flex items-center space-x-2"
+            className="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white flex items-center space-x-2"
           >
             <FileDown className="w-4 h-4" />
             <span>Export Epics as DOCX</span>
