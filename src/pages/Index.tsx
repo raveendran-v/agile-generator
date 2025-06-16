@@ -5,7 +5,6 @@ import BRDInput from '../components/BRDInput';
 import EpicGeneration from '../components/EpicGeneration';
 import StoryGeneration from '../components/StoryGeneration';
 import Footer from '../components/Footer';
-import ModernTechUI from '../components/ModernTechUI';
 import { useToast } from '@/hooks/use-toast';
 import { generateEpicsWithGroq, generateStoriesWithGroq } from '@/lib/groqService';
 
@@ -29,7 +28,6 @@ export interface Story {
 }
 
 const Index = () => {
-  const [viewMode, setViewMode] = useState<'demo' | 'app'>('demo');
   const [brdContent, setBrdContent] = useState('');
   const [epics, setEpics] = useState<Epic[]>([]);
   const [allStories, setAllStories] = useState<Story[]>([]);
@@ -211,33 +209,8 @@ const Index = () => {
     }
   };
 
-  if (viewMode === 'demo') {
-    return (
-      <div className="min-h-screen">
-        <ModernTechUI />
-        <div className="fixed bottom-6 right-6 z-50">
-          <button
-            onClick={() => setViewMode('app')}
-            className="gradient-primary text-white px-6 py-3 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            View Original App
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="fixed top-6 right-6 z-50">
-        <button
-          onClick={() => setViewMode('demo')}
-          className="gradient-primary text-white px-4 py-2 rounded-full font-semibold shadow-lg hover:shadow-xl transition-all duration-300 text-sm"
-        >
-          View Demo UI
-        </button>
-      </div>
-
       <Header />
       
       <main className="container mx-auto px-6 py-12 space-y-12">
