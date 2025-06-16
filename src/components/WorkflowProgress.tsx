@@ -35,21 +35,21 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
       label: 'In Progress',
       count: availableEpics,
       subLabel: 'Ready for stories',
-      color: 'text-tech-orange',
-      bgColor: 'bg-gradient-to-br from-orange-50 to-tech-orange/10',
-      borderColor: 'border-tech-orange/30',
+      color: 'text-orange-600',
+      bgColor: 'bg-gradient-to-br from-orange-50 to-orange-100',
+      borderColor: 'border-orange-300',
       icon: Play,
-      iconColor: 'text-tech-orange'
+      iconColor: 'text-orange-600'
     },
     {
       label: 'Pending',
       count: totalEpics - completedEpics - availableEpics,
       subLabel: 'Awaiting turn',
-      color: 'text-tech-navy',
-      bgColor: 'bg-gradient-to-br from-blue-50 to-tech-navy/10',
-      borderColor: 'border-tech-navy/30',
+      color: 'text-purple-700',
+      bgColor: 'bg-gradient-to-br from-purple-50 to-purple-100',
+      borderColor: 'border-purple-300',
       icon: Circle,
-      iconColor: 'text-tech-navy'
+      iconColor: 'text-purple-700'
     }
   ];
 
@@ -60,15 +60,15 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
       {/* Modern Progress Bar */}
       <div className="relative">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-semibold text-tech-navy">
+          <h3 className="text-sm font-semibold text-purple-800">
             Project Progress
           </h3>
           <div className="text-right">
-            <span className="text-sm font-medium text-tech-pink">
+            <span className="text-sm font-medium text-pink-600">
               {Math.round(progressPercentage)}%
             </span>
             {totalStories > 0 && (
-              <div className="text-xs text-tech-text-light">
+              <div className="text-xs text-gray-600">
                 {totalStories} stories total
               </div>
             )}
@@ -83,7 +83,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
           
           {/* Animated gradient overlay for active progress */}
           <div 
-            className="absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r from-tech-pink via-tech-orange to-tech-navy transition-all duration-1000 ease-out opacity-90"
+            className="absolute top-0 left-0 h-3 rounded-full bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-600 transition-all duration-1000 ease-out opacity-90"
             style={{ width: `${progressPercentage}%` }}
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse rounded-full"></div>
@@ -114,10 +114,10 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
                   <div className={`text-2xl font-bold ${step.color} transition-all duration-300`}>
                     {step.count}
                   </div>
-                  <div className="text-xs font-medium text-tech-text truncate">
+                  <div className="text-xs font-medium text-gray-800 truncate">
                     {step.label}
                   </div>
-                  <div className="text-xs text-tech-text-light truncate">
+                  <div className="text-xs text-gray-600 truncate">
                     {step.subLabel}
                   </div>
                 </div>
@@ -125,7 +125,7 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
               {/* Animated border effect for active step */}
               {step.count > 0 && index === 1 && (
-                <div className="absolute inset-0 border-2 border-tech-orange rounded-xl animate-pulse opacity-50"></div>
+                <div className="absolute inset-0 border-2 border-orange-400 rounded-xl animate-pulse opacity-50"></div>
               )}
             </div>
           );
@@ -134,9 +134,9 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
 
       {/* Status Message */}
       <div className="text-center">
-        <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-tech-pink/10 to-tech-orange/10 border border-tech-pink/30">
-          <div className="w-2 h-2 bg-tech-pink rounded-full mr-2 animate-pulse"></div>
-          <span className="text-sm font-medium text-tech-navy">
+        <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 border border-pink-300">
+          <div className="w-2 h-2 bg-pink-500 rounded-full mr-2 animate-pulse"></div>
+          <span className="text-sm font-medium text-purple-800">
             {completedEpics === totalEpics 
               ? `🎉 All ${totalEpics} epics completed with ${totalStories} stories!` 
               : availableEpics > 0 

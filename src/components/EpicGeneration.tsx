@@ -230,7 +230,7 @@ const EpicGeneration: React.FC<EpicGenerationProps> = ({
               <Button
                 variant="outline"
                 size="sm"
-                onclick={() => setShowFeedback(false)}
+                onClick={() => setShowFeedback(false)}
                 className="border-2 border-gray-300 text-gray-700 hover:bg-gray-100"
               >
                 Cancel
