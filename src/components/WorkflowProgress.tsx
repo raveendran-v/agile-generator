@@ -106,8 +106,8 @@ const WorkflowProgress: React.FC<WorkflowProgressProps> = ({
               </div>
               
               <div className="relative z-10 flex items-center space-x-3">
-                <div className={`p-2 rounded-lg ${step.bgColor} border ${step.borderColor}`}>
-                  <Icon className={`w-4 h-4 ${step.iconColor}`} />
+                <div className={`p-2 rounded-lg bg-white/80 border-2 ${step.borderColor} shadow-sm`}>
+                  <Icon className={`w-5 h-5 ${step.iconColor}`} />
                 </div>
                 
                 <div className="flex-1 min-w-0">
